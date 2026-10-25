@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Un espacio para descubrir eventos y conectar con la comunidad gamer.">
+    <title th:text="|${siteName} — Comunidad gamer|">Gamer Events</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+<a class="skip-link" href="#contenido">Saltar al contenido</a>
+<header th:replace="~{fragments :: header}"></header>
+<main id="contenido" class="container">
+    <section class="hero" aria-labelledby="titulo">
+        <p class="eyebrow">Tu comunidad. Tu próxima partida.</p>
+        <h1 id="titulo">Los mejores encuentros<br>empiezan jugando.</h1>
+        <p class="hero-description">Un espacio para descubrir eventos, compartir tu pasión
+            y conectar con la comunidad gamer.</p>
+        <a class="button" href="#proximos">Explorar próximos eventos <span aria-hidden="true">↗</span></a>
+    </section>
+
+    <section id="proximos" class="content-section" aria-labelledby="proximos-titulo">
+        <div class="section-heading"><span class="section-number" aria-hidden="true">01</span>
+            <h2 id="proximos-titulo">Próximos eventos</h2></div>
+        <div class="event-grid" th:unless="${#lists.isEmpty(upcoming)}">
+            <th:block th:each="event : ${upcoming}"><article th:replace="~{fragments :: eventCard(${event})}"></article></th:block>
+        </div>
+        <div class="empty-state" th:if="${#lists.isEmpty(upcoming)}"><p>Todavía no hay eventos publicados.</p>
+            <p>Cuando se publique un encuentro, podrás descubrirlo aquí.</p></div>
+    </section>
+
+        <section class="content-section" aria-labelledby="destacados-titulo">
+            <div class="section-heading"><span class="section-number" aria-hidden="true">02</span>
+                <h2 id="destacados-titulo">Eventos destacados</h2></div>
+            <div class="event-grid" th:unless="${#lists.isEmpty(featured)}">
+                <th:block th:each="event : ${featured}"><article th:replace="~{fragments :: eventCard(${event})}"></article></th:block>
+            </div>
+            <div class="empty-state" th:if="${#lists.isEmpty(featured)}"><p>No hay eventos destacados disponibles.</p></div>
+        </section>
+        <section class="content-section" aria-labelledby="marcas-titulo">
+            <div class="section-heading"><span class="section-number" aria-hidden="true">03</span>
+                <h2 id="marcas-titulo">Marcas de la comunidad</h2></div>
+            <div class="brand-grid" th:unless="${#lists.isEmpty(brands)}"><article class="brand-card" th:each="brand : ${brands}"><h3 th:text="${brand.name}"></h3><p th:text="${brand.message}"></p></article></div>
+            <div class="empty-state" th:if="${#lists.isEmpty(brands)}"><p>No hay anuncios de marcas disponibles.</p></div>
+        </section>
+    <p class="stage-note">Descubre los detalles de cada encuentro iniciando sesión. Tu próxima comunidad está aquí.</p>
+</main>
+<footer th:replace="~{fragments :: footer}"></footer>
+</body>
+</html>

@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head('Eventos')}"></head>
+<body><header th:replace="~{fragments :: header}"></header>
+<main id="contenido" class="container page-main">
+    <p class="eyebrow">Encuentra tu próxima partida</p><h1 class="page-title">Explorar eventos</h1>
+    <form th:action="@{/eventos}" method="get" class="panel filters" aria-label="Filtrar eventos">
+        <div><label for="category">Categoría</label><select id="category" name="category"><option value="">Todas las categorías</option><option th:each="option : ${categories}" th:value="${option}" th:text="${option}" th:selected="${category == option}"></option></select></div>
+        <div><label for="date">Fecha</label><input id="date" name="date" type="date" th:value="${date}" min="1900-01-01" max="2100-12-31"></div>
+        <div><label for="location">Ubicación</label><select id="location" name="location"><option value="">Todas las ubicaciones</option><option th:each="option : ${locations}" th:value="${option}" th:text="${option}" th:selected="${location == option}"></option></select></div>
+        <button class="button" type="submit">Aplicar filtros</button>
+    </form>
+    <div class="filter-actions"><p class="muted" th:text="|${#lists.size(events)} eventos encontrados|"></p><a class="text-link" th:href="@{/eventos}">Limpiar filtros</a></div>
+    <div class="empty-state" th:if="${#lists.isEmpty(events)}"><h2>No hay eventos que coincidan</h2><p>Prueba otra fecha, categoría o ubicación.</p></div>
+    <div class="event-grid"><th:block th:each="event : ${events}"><article th:replace="~{fragments :: eventCard(${event})}"></article></th:block></div>
+</main><footer th:replace="~{fragments :: footer}"></footer></body></html>

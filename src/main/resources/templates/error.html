@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head('Revisemos la ruta')}"></head>
+<body><header th:replace="~{fragments :: header}"></header>
+<main id="contenido" class="container page-main"><section class="panel">
+    <p class="eyebrow" th:text="|Respuesta ${status}|"></p><h1 class="page-title">No pudimos abrir esta página.</h1>
+    <p th:if="${status == 404}">El evento o la página que buscas no existe.</p>
+    <p th:if="${status == 400}">Revisa el formato de los filtros. La fecha debe ser válida.</p>
+    <p th:if="${status == 403}">La solicitud no está autorizada. Recarga el formulario e inténtalo otra vez.</p>
+    <p th:if="${status != 404 and status != 400 and status != 403}">Inténtalo nuevamente más tarde.</p>
+    <a class="button" th:href="@{/recetas}">Volver al inicio</a>
+</section></main><footer th:replace="~{fragments :: footer}"></footer></body></html>

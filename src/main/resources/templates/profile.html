@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head('Mi perfil')}"></head>
+<body><header th:replace="~{fragments :: header}"></header>
+<main id="contenido" class="container page-main">
+    <p class="eyebrow">Tu espacio en la comunidad</p><h1 class="page-title">Mi perfil</h1>
+    <p class="alert success" role="status" th:if="${param.guardado}">Los cambios de tu perfil se guardaron.</p>
+    <section class="panel profile-panel">
+        <form th:action="@{/perfil}" th:object="${profile}" method="post">
+            <div class="alert error" role="alert" th:if="${#fields.hasErrors('*')}"><ul><li th:each="error : ${#fields.allErrors()}" th:text="${error}"></li></ul></div>
+            <div class="input-grid"><div><label for="name">Nombre</label><input id="name" th:field="*{name}" required minlength="2" maxlength="80" autocomplete="name"></div>
+                <div><label for="nickname">Alias gamer</label><input id="nickname" th:field="*{nickname}" maxlength="40" autocomplete="nickname"></div></div>
+            <fieldset><legend>Elige tu avatar</legend><div class="avatar-options">
+                <label><input type="radio" th:field="*{avatar}" value="controller"><img th:src="@{/images/avatars/controller.svg}" alt="Control de videojuegos"><span>Player</span></label>
+                <label><input type="radio" th:field="*{avatar}" value="robot"><img th:src="@{/images/avatars/robot.svg}" alt="Robot"><span>Robot</span></label>
+                <label><input type="radio" th:field="*{avatar}" value="rocket"><img th:src="@{/images/avatars/rocket.svg}" alt="Cohete"><span>Explorer</span></label>
+            </div></fieldset>
+            <label for="games">Juegos de interés</label><input id="games" th:field="*{games}" maxlength="200" placeholder="Por ejemplo: Minecraft, Valorant, Rocket League">
+            <p class="field-help">Separa tus juegos favoritos con comas.</p>
+            <label class="checkbox-label"><input type="checkbox" th:field="*{notifications}">Quiero recibir novedades de eventos</label>
+            <p class="field-help">Guardaremos tu preferencia. El envío de notificaciones aún no está disponible.</p>
+            <button class="button" type="submit">Guardar perfil</button>
+        </form>
+    </section>
+</main><footer th:replace="~{fragments :: footer}"></footer></body></html>

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="head(title)">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="|${title} — Comunidad gamer|">Gamer Events</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+<header th:fragment="header" class="site-header">
+    <a class="skip-link" href="#contenido">Saltar al contenido</a>
+    <div class="container header-content">
+        <a class="brand" th:href="@{/recetas}">Gamer Events<span class="brand-dot">●</span></a>
+        <nav aria-label="Navegación principal">
+            <a th:href="@{/recetas}">Inicio</a>
+            <a th:href="@{/eventos}">Eventos</a>
+            <a th:if="${signedIn}" th:href="@{/perfil}">Mi perfil</a>
+            <a th:unless="${signedIn}" th:href="@{/login}">Ingresar</a>
+            <a class="nav-register" th:unless="${signedIn}" th:href="@{/registro}">Crear cuenta</a>
+            <form th:if="${signedIn}" th:action="@{/logout}" method="post" class="logout-form">
+                <button class="link-button" type="submit">Cerrar sesión</button>
+            </form>
+        </nav>
+    </div>
+    <div class="demo-banner" th:if="${demoMode}">Demostración académica · Eventos y marcas ficticios.</div>
+</header>
+<footer th:fragment="footer" class="site-footer"><div class="container">Gamer Events · DUOC UC · ISY2202<br>Seguridad y Calidad en el Desarrollo de Software</div></footer>
+<article th:fragment="eventCard(event)" class="event-card">
+    <div class="event-art" aria-hidden="true"><span th:text="${event.category}">Categoría</span><span class="event-symbol">✦</span></div>
+    <div class="event-card-body">
+        <p class="eyebrow" th:text="${#temporals.format(event.startsAt, 'dd/MM/yyyy')}">Fecha</p>
+        <h3><a th:href="@{/eventos/{id}(id=${event.id})}" th:text="${event.title}">Evento</a></h3>
+        <p class="muted" th:text="${event.location}">Ubicación</p>
+        <a class="text-link" th:href="@{/eventos/{id}(id=${event.id})}">Ver detalles <span aria-hidden="true">↗</span></a>
+    </div>
+</article>
+</body>
+</html>

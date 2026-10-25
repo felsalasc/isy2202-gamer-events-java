@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head(${event.title})}"></head>
+<body><header th:replace="~{fragments :: header}"></header>
+<main id="contenido" class="container page-main">
+    <a class="text-link" th:href="@{/eventos}">← Volver a eventos</a>
+    <p class="eyebrow" th:text="${event.category}"></p><h1 class="page-title" th:text="${event.title}"></h1>
+    <div class="event-detail">
+        <section class="panel" aria-label="Información del evento">
+            <h2>Acerca del encuentro</h2><p th:text="${event.description}"></p>
+            <h2>Organizadores</h2><p th:text="${event.organizers}"></p>
+            <h2>Servicios disponibles</h2><p th:text="${event.services}"></p>
+            <h2>Principales expositores</h2><p th:text="${event.exhibitors}"></p>
+        </section>
+        <aside class="panel" aria-labelledby="datos"><h2 id="datos">Planifica tu visita</h2><dl>
+            <dt>Fecha</dt><dd th:text="${#temporals.format(event.startsAt, 'dd/MM/yyyy')}"></dd>
+            <dt>Hora local de Chile</dt><dd th:text="${#temporals.format(event.startsAt, 'HH:mm')}"></dd>
+            <dt>Ubicación</dt><dd th:text="${event.location}"></dd>
+            <dt>Dirección</dt><dd th:text="${event.address}"></dd>
+        </dl></aside>
+    </div>
+</main><footer th:replace="~{fragments :: footer}"></footer></body></html>
