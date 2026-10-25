@@ -8,15 +8,16 @@
     <link rel="stylesheet" th:href="@{/css/styles.css}">
 </head>
 <body>
-<a class="skip-link" href="#contenido">Saltar al contenido</a>
 <header th:replace="~{fragments :: header}"></header>
 <main id="contenido" class="container">
     <section class="hero" aria-labelledby="titulo">
+        <div class="hero-copy">
         <p class="eyebrow">Tu comunidad. Tu próxima partida.</p>
         <h1 id="titulo">Los mejores encuentros<br>empiezan jugando.</h1>
         <p class="hero-description">Un espacio para descubrir eventos, compartir tu pasión
             y conectar con la comunidad gamer.</p>
         <a class="button" href="#proximos">Explorar próximos eventos <span aria-hidden="true">↗</span></a>
+        </div>
     </section>
 
     <section id="proximos" class="content-section" aria-labelledby="proximos-titulo">

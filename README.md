@@ -59,7 +59,7 @@ ejecuta las pruebas con los comandos correspondientes a tu sistema operativo.
 
 ```powershell
 ./mvnw.cmd clean verify
-& "$env:JAVA_HOME/bin/java.exe" -jar target/gamer-events-0.0.1-SNAPSHOT.jar
+& "$env:JAVA_HOME/bin/java.exe" -jar target/gamer-events-0.0.1-SNAPSHOT.jar --server.port=18080
 ```
 
 ### Linux y macOS
@@ -67,19 +67,57 @@ ejecuta las pruebas con los comandos correspondientes a tu sistema operativo.
 ```bash
 chmod +x mvnw
 ./mvnw clean verify
-"$JAVA_HOME/bin/java" -jar target/gamer-events-0.0.1-SNAPSHOT.jar
+"$JAVA_HOME/bin/java" -jar target/gamer-events-0.0.1-SNAPSHOT.jar --server.port=18080
 ```
 
-Abre [http://localhost:8080/recetas](http://localhost:8080/recetas).
+Abre [http://localhost:18080/recetas](http://localhost:18080/recetas).
 También están disponibles `/` y `/home`. Detén la aplicación con `Ctrl+C`.
 
-Si el puerto 8080 no está disponible, añade `--server.port=0` al comando de
+Si el puerto 18080 no está disponible, sustituye `--server.port=18080` por
+`--server.port=0` en el comando de
 arranque. El sistema asignará un puerto libre, visible en el mensaje
 `Tomcat started on port ...` del log. En Windows, detén la aplicación antes de
 volver a ejecutar `clean verify`, porque el proceso mantiene abierto el JAR.
 
 La ejecución normal permite registrar usuarios y comienza sin eventos ni marcas
 precargados. Para explorar el catálogo de ejemplo, utiliza el perfil demo.
+
+## Ejecución desde VS Code
+
+En **Ejecutar y depurar** (`Ctrl+Shift+D`), selecciona **Gamer Events - Demo**
+y presiona **F5** para ver los eventos de ejemplo. Abre
+[http://localhost:18080/recetas](http://localhost:18080/recetas).
+Detén la ejecución anterior con **Shift+F5** antes de iniciar otra.
+
+La configuración de VS Code es local y está excluida de Git. En una clonación
+nueva, puedes usar `./scripts/run-demo.ps1 -Port 18080` o crear una configuración
+Java con `cl.duoc.gamerevents.GamerEventsApplication` como clase principal,
+JDK 17 y los argumentos `--server.port=18080 --spring.profiles.active=demo`.
+En este último caso, proporciona `GAMER_DEMO_PASSWORD` mediante un archivo de
+entorno local excluido de Git. El modo normal utiliza solo `--server.port=18080`.
+
+Los comandos de este README usan 18080 para evitar el rango que Windows reserva
+en algunos equipos. El valor base de `application.properties` sigue siendo 8080;
+el argumento de arranque tiene prioridad. Si utilizas `--server.port=0`, sustituye
+el argumento 18080 para solicitar un puerto libre.
+
+## Identidad visual
+
+Estilo gamer con fondo negro, tarjetas oscuras, texto blanco y colores de
+contraste. Los títulos tienen mayor peso visual; las tarjetas incorporan líneas
+y formas geométricas en coral, amarillo y verde suave.
+
+| Color | Hexadecimal | Uso |
+| --- | --- | --- |
+| Negro | `#090B10` | Fondo principal |
+| Grafito | `#131720` | Tarjetas y formularios |
+| Blanco | `#F4F5FA` | Texto principal |
+| Coral | `#FF6B58` | Botones y acentos |
+| Amarillo | `#FFB54D` | Foco de teclado y destacados |
+| Verde suave | `#83B6A8` | Enlaces y acentos secundarios |
+
+Las vistas comparten estilos adaptables a pantallas pequeñas y foco visible
+para navegación por teclado.
 
 ## Demostración
 
@@ -104,7 +142,7 @@ ZIP de entrega. Si ya existe la variable `GAMER_DEMO_PASSWORD`, utiliza ese valo
 Para solicitar un puerto concreto:
 
 ```powershell
-./scripts/run-demo.ps1 -Port 8080
+./scripts/run-demo.ps1 -Port 18080
 ```
 
 ### Otros entornos
@@ -114,7 +152,7 @@ Define `GAMER_DEMO_PASSWORD` en el entorno y ejecuta el JAR con
 y no superar 72 bytes UTF-8.
 
 ```bash
-"$JAVA_HOME/bin/java" -jar target/gamer-events-0.0.1-SNAPSHOT.jar --spring.profiles.active=demo
+"$JAVA_HOME/bin/java" -jar target/gamer-events-0.0.1-SNAPSHOT.jar --server.port=18080 --spring.profiles.active=demo
 ```
 
 El inicializador crea tres cuentas, tres eventos y tres anuncios. No duplica
@@ -203,4 +241,3 @@ implementada; el despliegue en una máquina virtual está pendiente.
 - [Spring Boot: requisitos del sistema](https://docs.spring.io/spring-boot/4.0/system-requirements.html)
 - [Spring Security: formulario de autenticación](https://docs.spring.io/spring-security/reference/7.0/servlet/authentication/passwords/form.html)
 - [Spring Security: protección CSRF](https://docs.spring.io/spring-security/reference/7.0/servlet/exploits/csrf.html)
-

@@ -26,7 +26,7 @@
 </header>
 <footer th:fragment="footer" class="site-footer"><div class="container">Gamer Events · DUOC UC · ISY2202<br>Seguridad y Calidad en el Desarrollo de Software</div></footer>
 <article th:fragment="eventCard(event)" class="event-card">
-    <div class="event-art" aria-hidden="true"><span th:text="${event.category}">Categoría</span><span class="event-symbol">✦</span></div>
+    <div class="event-art"><span th:text="${event.category}">Categoría</span></div>
     <div class="event-card-body">
         <p class="eyebrow" th:text="${#temporals.format(event.startsAt, 'dd/MM/yyyy')}">Fecha</p>
         <h3><a th:href="@{/eventos/{id}(id=${event.id})}" th:text="${event.title}">Evento</a></h3>
