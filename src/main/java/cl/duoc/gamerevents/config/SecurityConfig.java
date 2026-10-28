@@ -1,6 +1,7 @@
 package cl.duoc.gamerevents.config;
 
 import jakarta.servlet.DispatcherType;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -29,6 +30,14 @@ public class SecurityConfig {
                 .logout(logout -> logout.logoutUrl("/logout").logoutSuccessUrl("/login?logout"));
         // CSRF remains enabled for registration, login, profile updates and POST logout.
         return http.build();
+    }
+
+    // Spring Boot registra todo Filter @Component como filtro global; el JWT solo debe actuar dentro de la cadena de la API.
+    @Bean
+    FilterRegistrationBean<JWTAuthorizationFilter> jwtAuthorizationFilterRegistration(JWTAuthorizationFilter filter) {
+        FilterRegistrationBean<JWTAuthorizationFilter> registration = new FilterRegistrationBean<>(filter);
+        registration.setEnabled(false);
+        return registration;
     }
 
     @Bean

@@ -14,6 +14,14 @@ if [ -z "$GAMER_DEMO_PASSWORD" ]; then
     echo "Contraseña de demostración en .tools/demo-password.txt: $GAMER_DEMO_PASSWORD"
 fi
 
+if [ -z "$JWT_SECRET" ]; then
+    if [ ! -f .tools/jwt-secret.txt ]; then
+        head -c 48 /dev/urandom | base64 | tr -d '\n' > .tools/jwt-secret.txt
+    fi
+    export JWT_SECRET="$(cat .tools/jwt-secret.txt)"
+    echo "Secreto JWT local en .tools/jwt-secret.txt (excluido de Git y del ZIP)."
+fi
+
 echo "Usuarios: gamer1@example.test, gamer2@example.test, gamer3@example.test"
 
 JAVA_BIN="${JAVA_HOME:+$JAVA_HOME/bin/java}"
