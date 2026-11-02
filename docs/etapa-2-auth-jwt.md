@@ -169,7 +169,7 @@ Se amplía `GamerEvent` con los datos que la pauta exige y que hoy no existen:
     `EventNotFoundException` (404) compartida por la web y la API.
   - [x] Pruebas: acceso anónimo a las públicas, 401 sin token en el detalle,
     200 con token y 404 para un evento inexistente.
-- [ ] **Parte 5 — H2 a MySQL.** Requisitos 1 y 5.
+- [x] **Parte 5 — H2 a MySQL.** Requisitos 1 y 5.
   - [x] 5.1 Driver `mysql-connector-j` (`runtime`) y H2 solo para pruebas
     (`test`). Conexión por variables de entorno (`DB_HOST`, `DB_PORT`,
     `DB_NAME`, `DB_USERNAME`, `DB_PASSWORD`). El perfil `demo` ya no cambia la
@@ -179,7 +179,7 @@ Se amplía `GamerEvent` con los datos que la pauta exige y que hoy no existen:
     espera a que MySQL esté sano y corre con `TZ=America/Santiago`: dentro de
     un contenedor la JVM usa UTC por defecto, y `LocalDateTime.now()` decide
     qué eventos son próximos. Arranque real con los 3 usuarios.
-  - [ ] 5.3 Pruebas contra MySQL real con Testcontainers (se omiten si no hay
+  - [x] 5.3 Pruebas contra MySQL real con Testcontainers (se omiten si no hay
     Docker): escape del `LIKE`, tildes y UTF-8 sin parámetros en la URL, y
     tamaño de las filas.
 - [ ] **Parte 6 — Documentación.**

@@ -1,34 +1,36 @@
-param([ValidateRange(0, 65535)][int]$Port = 0)
+# Levanta Gamer Events (aplicación + MySQL) con Docker Compose y espera a que responda.
+# Requisitos: Docker Desktop en ejecución y un archivo .env completo (copia de .env.example).
 $ErrorActionPreference = 'Stop'
-$taskRoot = Split-Path -Parent $PSScriptRoot
-Push-Location -LiteralPath $taskRoot
+$projectRoot = Split-Path -Parent $PSScriptRoot
+Push-Location -LiteralPath $projectRoot
 try {
-    $taskLocalJdk = Get-ChildItem -LiteralPath '.tools/java17' -Directory -ErrorAction SilentlyContinue | Select-Object -First 1
-    if ($taskLocalJdk) { $env:JAVA_HOME = $taskLocalJdk.FullName }
-    $taskJava = if ($env:JAVA_HOME) { Join-Path $env:JAVA_HOME 'bin/java.exe' } else { 'java' }
-    New-Item -ItemType Directory -Path '.tools' -Force | Out-Null
-    if (-not $env:GAMER_DEMO_PASSWORD) {
-        if (-not (Test-Path -LiteralPath '.tools/demo-password.txt')) {
-            $taskBytes = New-Object byte[] 24
-            $taskRng = [System.Security.Cryptography.RandomNumberGenerator]::Create()
-            try { $taskRng.GetBytes($taskBytes) } finally { $taskRng.Dispose() }
-            [Convert]::ToBase64String($taskBytes) | Set-Content -LiteralPath '.tools/demo-password.txt' -Encoding ascii
-        }
-        $env:GAMER_DEMO_PASSWORD = (Get-Content -LiteralPath '.tools/demo-password.txt' -Raw).Trim()
-        Write-Host 'Contraseña de demostración en .tools/demo-password.txt (excluida de Git y del ZIP).'
+    if (-not (Test-Path -LiteralPath '.env')) {
+        throw 'Falta el archivo .env. Cópialo desde .env.example (Copy-Item .env.example .env) y completa las contraseñas.'
     }
-    if (-not $env:JWT_SECRET) {
-        if (-not (Test-Path -LiteralPath '.tools/jwt-secret.txt')) {
-            $taskBytes = New-Object byte[] 48
-            $taskRng = [System.Security.Cryptography.RandomNumberGenerator]::Create()
-            try { $taskRng.GetBytes($taskBytes) } finally { $taskRng.Dispose() }
-            [Convert]::ToBase64String($taskBytes) | Set-Content -LiteralPath '.tools/jwt-secret.txt' -Encoding ascii
-        }
-        $env:JWT_SECRET = (Get-Content -LiteralPath '.tools/jwt-secret.txt' -Raw).Trim()
-        Write-Host 'Secreto JWT local en .tools/jwt-secret.txt (excluido de Git y del ZIP).'
+
+    docker info *> $null
+    if ($LASTEXITCODE -ne 0) {
+        throw 'Docker no está en ejecución. Abre Docker Desktop e inténtalo otra vez.'
     }
-    Write-Host 'Usuarios: gamer1@example.test, gamer2@example.test, gamer3@example.test'
-    Write-Host 'El puerto se mostrará en la línea Tomcat started on port del log.'
-    & $taskJava -jar 'target/gamer-events-0.0.1-SNAPSHOT.jar' '--spring.profiles.active=demo' "--server.port=$Port"
-    if ($LASTEXITCODE -ne 0) { throw 'La aplicación no pudo iniciar. Revisa el log anterior.' }
-} finally { Pop-Location }
+
+    docker compose up --build -d
+    if ($LASTEXITCODE -ne 0) { throw 'docker compose no pudo levantar los servicios. Revisa el mensaje anterior.' }
+
+    Write-Host 'Esperando a que la aplicación responda...'
+    for ($attempt = 0; $attempt -lt 60; $attempt++) {
+        try {
+            Invoke-WebRequest -Uri 'http://localhost/api/home' -UseBasicParsing -TimeoutSec 3 | Out-Null
+            Write-Host ''
+            Write-Host 'Gamer Events está listo en http://localhost'
+            Write-Host 'Usuarios: gamer1@example.test, gamer2@example.test, gamer3@example.test'
+            Write-Host 'Contraseña: el valor de GAMER_DEMO_PASSWORD en tu .env'
+            Write-Host 'Ver el log: docker compose logs -f gamer-events   |   Detener: docker compose down'
+            exit 0
+        } catch {
+            Start-Sleep -Seconds 3
+        }
+    }
+    throw 'La aplicación no respondió a tiempo. Revisa el log con: docker compose logs gamer-events'
+} finally {
+    Pop-Location
+}

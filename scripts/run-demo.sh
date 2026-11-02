@@ -1,30 +1,36 @@
 #!/usr/bin/env bash
-set -e
+# Levanta Gamer Events (aplicación + MySQL) con Docker Compose y espera a que responda.
+# Requisitos: Docker en ejecución y un archivo .env completo (copia de .env.example).
+set -euo pipefail
 
-PORT="${1:-18080}"
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT_DIR"
 
-mkdir -p .tools
-if [ -z "$GAMER_DEMO_PASSWORD" ]; then
-    if [ ! -f .tools/demo-password.txt ]; then
-        head -c 24 /dev/urandom | base64 | tr -d '\n' > .tools/demo-password.txt
-    fi
-    export GAMER_DEMO_PASSWORD="$(cat .tools/demo-password.txt)"
-    echo "Contraseña de demostración en .tools/demo-password.txt: $GAMER_DEMO_PASSWORD"
+if [ ! -f .env ]; then
+    echo "Falta el archivo .env. Cópialo desde .env.example y completa las contraseñas:" >&2
+    echo "  cp .env.example .env" >&2
+    exit 1
 fi
 
-if [ -z "$JWT_SECRET" ]; then
-    if [ ! -f .tools/jwt-secret.txt ]; then
-        head -c 48 /dev/urandom | base64 | tr -d '\n' > .tools/jwt-secret.txt
-    fi
-    export JWT_SECRET="$(cat .tools/jwt-secret.txt)"
-    echo "Secreto JWT local en .tools/jwt-secret.txt (excluido de Git y del ZIP)."
+if ! docker info >/dev/null 2>&1; then
+    echo "Docker no está en ejecución. Abre Docker Desktop (o inicia el servicio docker) e inténtalo otra vez." >&2
+    exit 1
 fi
 
-echo "Usuarios: gamer1@example.test, gamer2@example.test, gamer3@example.test"
+docker compose up --build -d
 
-JAVA_BIN="${JAVA_HOME:+$JAVA_HOME/bin/java}"
-JAVA_BIN="${JAVA_BIN:-/Library/Java/JavaVirtualMachines/jdk-27.jdk/Contents/Home/bin/java}"
+echo "Esperando a que la aplicación responda..."
+for _ in $(seq 1 60); do
+    if curl -fs -o /dev/null http://localhost/api/home; then
+        echo
+        echo "Gamer Events está listo en http://localhost"
+        echo "Usuarios: gamer1@example.test, gamer2@example.test, gamer3@example.test"
+        echo "Contraseña: el valor de GAMER_DEMO_PASSWORD en tu .env"
+        echo "Ver el log: docker compose logs -f gamer-events   |   Detener: docker compose down"
+        exit 0
+    fi
+    sleep 3
+done
 
-"$JAVA_BIN" -jar target/gamer-events-0.0.1-SNAPSHOT.jar --spring.profiles.active=demo --server.port="$PORT"
+echo "La aplicación no respondió a tiempo. Revisa el log con: docker compose logs gamer-events" >&2
+exit 1
