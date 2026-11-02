@@ -98,6 +98,7 @@ legend { font-weight: 700; }
 .filters label { margin-top: 0; }
 .filters .button { margin: 0; min-height: 52px; }
 .filter-actions { display: flex; gap: 1rem; align-items: center; margin-bottom: 2rem; }
+.event-hero { display: block; width: 100%; max-width: 720px; height: auto; aspect-ratio: 16 / 9; object-fit: contain; margin: 0 0 2rem; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); }
 .event-detail { display: grid; grid-template-columns: 2fr 1fr; gap: 2rem; }
 .event-detail h2 { margin-top: 1.8rem; }
 .event-detail h2:first-child { margin-top: 0; }
