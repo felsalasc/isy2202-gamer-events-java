@@ -170,9 +170,18 @@ Se amplía `GamerEvent` con los datos que la pauta exige y que hoy no existen:
   - [x] Pruebas: acceso anónimo a las públicas, 401 sin token en el detalle,
     200 con token y 404 para un evento inexistente.
 - [ ] **Parte 5 — H2 a MySQL.** Requisitos 1 y 5.
-  - [ ] Driver `mysql-connector-j` y configuración por variables de entorno.
-  - [ ] Servicio MySQL en `docker-compose.yml` y `.env.example`.
-  - [ ] Pruebas con H2; arranque real contra MySQL con los 3 usuarios.
+  - [x] 5.1 Driver `mysql-connector-j` (`runtime`) y H2 solo para pruebas
+    (`test`). Conexión por variables de entorno (`DB_HOST`, `DB_PORT`,
+    `DB_NAME`, `DB_USERNAME`, `DB_PASSWORD`). El perfil `demo` ya no cambia la
+    base, solo carga los datos de ejemplo.
+  - [ ] 5.2 Servicio `mysql:8.4` en `docker-compose.yml` con volumen con nombre,
+    healthcheck y sin puerto publicado (destino final: VM de Azure). La app
+    espera a que MySQL esté sano y corre con `TZ=America/Santiago`: dentro de
+    un contenedor la JVM usa UTC por defecto, y `LocalDateTime.now()` decide
+    qué eventos son próximos. Arranque real con los 3 usuarios.
+  - [ ] 5.3 Pruebas contra MySQL real con Testcontainers (se omiten si no hay
+    Docker): escape del `LIKE`, tildes y UTF-8 sin parámetros en la URL, y
+    tamaño de las filas.
 - [ ] **Parte 6 — Documentación.**
   - [ ] README: variables de entorno, ejecución, ejemplos de login y uso del
     token, tabla de rutas públicas y privadas.
