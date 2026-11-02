@@ -1,5 +1,11 @@
 # Despliegue y entrega académica
 
+> **Documento desactualizado (2 de noviembre de 2026).** Describe la ejecución
+> de la Etapa 1 con el JAR y H2. Desde la Etapa 2, la aplicación corre con
+> Docker Compose y MySQL: ver la sección "Ejecución con Docker" del
+> [README](../README.md). La guía de despliegue en la VM de Azure se escribirá
+> después del despliegue real.
+
 El código fuente se empaqueta con `./scripts/package-source.ps1`. El ZIP en
 `dist/gamer-events-semana1-fuente.zip` incluye código, wrapper, pruebas, scripts
 y documentación. Excluye `.tools`, `target`, `data`, `.git` y credenciales locales.

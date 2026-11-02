@@ -1,23 +1,22 @@
 # Gamer Events
 
-Aplicación web para consultar eventos de la comunidad gamer, crear una cuenta y
-personalizar un perfil. Desarrollada con Java y Spring Boot para la asignatura
-**Seguridad y Calidad en el Desarrollo de Software (ISY2202)** de **Duoc UC**.
+Aplicación web y API REST para consultar eventos de la comunidad gamer, crear una
+cuenta y personalizar un perfil. Desarrollada con Java y Spring Boot para la
+asignatura **Seguridad y Calidad en el Desarrollo de Software (ISY2202)** de
+**Duoc UC**.
 
-**Repositorio:** [isy2202-gamer-events-java](https://github.com/felsalasc/isy2202-gamer-events-java) · **Actividad:** Semana 1
+**Repositorio:** [isy2202-gamer-events-java](https://github.com/felsalasc/isy2202-gamer-events-java) · **Actividad:** Etapa 2
 
 ## Funcionalidades
 
-- **Inicio público:** próximos eventos, eventos destacados y publicidad de marcas.
-- **Registro e inicio de sesión:** nombre, correo único y contraseña almacenada con BCrypt.
-- **Perfil privado:** nombre, alias, avatar, juegos de interés y preferencias de notificaciones.
-- **Catálogo privado:** filtros combinables por categoría, fecha y ubicación.
-- **Detalle de eventos:** descripción, dirección, fecha, hora, organizadores, servicios y expositores.
-- **Cierre de sesión:** formulario POST protegido con CSRF.
+- **[Pública] Inicio:** eventos más recientes y populares, banners comerciales y acceso al inicio de sesión.
+- **[Pública] Búsqueda de eventos:** filtros combinables por nombre, videojuego, tipo o categoría, país, ciudad, fecha y modalidad (presencial u online). Muestra un resumen de cada evento.
+- **[Privada] Detalle de eventos:** descripción, videojuego, fecha y hora, ubicación o enlace de acceso, organizador, requisitos de participación, información de inscripción e imagen.
+- **API REST con JWT:** login que entrega un token, APIs públicas de inicio y búsqueda, y API privada de detalle con `Authorization: Bearer`.
+- **Registro, inicio de sesión y perfil:** contraseña almacenada con BCrypt, perfil privado editable y cierre de sesión protegido con CSRF.
 - **Interfaz adaptable:** HTML5, CSS3 y plantillas Thymeleaf.
 
-Las preferencias de notificaciones se guardan; el envío de correos no está
-implementado. El perfil de demostración contiene eventos y marcas ficticios,
+El perfil de demostración contiene usuarios, eventos y marcas ficticios,
 identificados como tales en la interfaz.
 
 ## Tecnologías
@@ -25,215 +24,293 @@ identificados como tales en la interfaz.
 | Tecnología | Versión o uso |
 | --- | --- |
 | Java | 17 |
-| Spring Boot | 4.0.9 |
+| Spring Boot | 4.0.9 (Spring Web MVC, Security, Data JPA, Validation) |
+| MySQL | 8.4, mediante `mysql-connector-j` |
+| jjwt | 0.12.5, tokens JWT firmados con HS256 |
+| Thymeleaf | Vistas web |
+| Docker y Docker Compose | Ejecución de la aplicación y MySQL |
 | Maven | 3.9.14 mediante Maven Wrapper |
-| Spring MVC y Thymeleaf | Controladores y vistas |
-| Spring Security | Autenticación, autorización, BCrypt y CSRF |
-| Spring Data JPA y H2 | Persistencia local |
-| Jakarta Validation | Validación de formularios |
-| JUnit 5 y MockMvc | Pruebas de integración |
+| JUnit 5, MockMvc, H2 y Testcontainers | Pruebas automatizadas |
 
 ## Requisitos
 
-- JDK 17 y variable `JAVA_HOME` configurada.
-- Git para clonar el repositorio, o descargar el código como ZIP.
-- Conexión a Internet para descargar dependencias en la primera compilación.
-- PowerShell para los scripts auxiliares de Windows.
+- **Docker Desktop** (Windows y macOS) o Docker Engine con Docker Compose (Linux).
+- Git para clonar el repositorio, o el código descargado como ZIP.
+- Solo para ejecutar las pruebas: JDK 17 o superior y la variable `JAVA_HOME`.
+  No es necesario instalar Maven: el proyecto incluye Maven Wrapper.
 
-Maven Wrapper está incluido; no es necesario instalar Maven globalmente.
-Ejecuta los comandos desde la raíz del proyecto.
+Ejecuta todos los comandos desde la raíz del proyecto.
 
-## Instalación y ejecución
+## Ejecución con Docker
 
-Clona el repositorio y entra en su directorio:
+La aplicación y MySQL corren en contenedores. MySQL solo es accesible desde la
+red interna de Docker; no se publica ningún puerto de la base de datos.
 
-```bash
-git clone https://github.com/felsalasc/isy2202-gamer-events-java.git
-cd isy2202-gamer-events-java
-```
+### 1. Crear el archivo `.env`
 
-También puedes descargar y descomprimir el ZIP desde GitHub. Luego compila y
-ejecuta las pruebas con los comandos correspondientes a tu sistema operativo.
-
-### Windows PowerShell
-
-```powershell
-./mvnw.cmd clean verify
-& "$env:JAVA_HOME/bin/java.exe" -jar target/gamer-events-0.0.1-SNAPSHOT.jar --server.port=18080
-```
-
-### Linux y macOS
+El archivo `.env` contiene las contraseñas y el secreto JWT. Está excluido de Git.
 
 ```bash
-chmod +x mvnw
-./mvnw clean verify
-"$JAVA_HOME/bin/java" -jar target/gamer-events-0.0.1-SNAPSHOT.jar --server.port=18080
+cp .env.example .env              # macOS y Linux
+Copy-Item .env.example .env       # Windows PowerShell
 ```
 
-Abre [http://localhost:18080/recetas](http://localhost:18080/recetas).
-También están disponibles `/` y `/home`. Detén la aplicación con `Ctrl+C`.
+Completa los valores vacíos (ver [Variables de entorno](#variables-de-entorno)).
+Para generar valores seguros:
 
-Si el puerto 18080 no está disponible, sustituye `--server.port=18080` por
-`--server.port=0` en el comando de
-arranque. El sistema asignará un puerto libre, visible en el mensaje
-`Tomcat started on port ...` del log. En Windows, detén la aplicación antes de
-volver a ejecutar `clean verify`, porque el proceso mantiene abierto el JAR.
+```bash
+openssl rand -base64 48   # JWT_SECRET
+openssl rand -base64 24   # DB_PASSWORD y MYSQL_ROOT_PASSWORD (uno distinto para cada una)
+```
 
-La ejecución normal permite registrar usuarios y comienza sin eventos ni marcas
-precargados. Para explorar el catálogo de ejemplo, utiliza el perfil demo.
+Define las contraseñas de MySQL **antes del primer arranque**: MySQL solo las
+aplica al crear su volumen de datos.
 
-## Ejecución desde VS Code
+### 2. Levantar la aplicación
 
-En **Ejecutar y depurar** (`Ctrl+Shift+D`), selecciona **Gamer Events - Demo**
-y presiona **F5** para ver los eventos de ejemplo. Abre
-[http://localhost:18080/recetas](http://localhost:18080/recetas).
-Detén la ejecución anterior con **Shift+F5** antes de iniciar otra.
+**macOS y Linux:**
 
-La configuración de VS Code es local y está excluida de Git. En una clonación
-nueva, puedes usar `./scripts/run-demo.ps1 -Port 18080` o crear una configuración
-Java con `cl.duoc.gamerevents.GamerEventsApplication` como clase principal,
-JDK 17 y los argumentos `--server.port=18080 --spring.profiles.active=demo`.
-En este último caso, proporciona `GAMER_DEMO_PASSWORD` mediante un archivo de
-entorno local excluido de Git. El modo normal utiliza solo `--server.port=18080`.
+```bash
+./scripts/run-demo.sh
+```
 
-Los comandos de este README usan 18080 para evitar el rango que Windows reserva
-en algunos equipos. El valor base de `application.properties` sigue siendo 8080;
-el argumento de arranque tiene prioridad. Si utilizas `--server.port=0`, sustituye
-el argumento 18080 para solicitar un puerto libre.
-
-## Identidad visual
-
-Estilo gamer con fondo negro, tarjetas oscuras, texto blanco y colores de
-contraste. Los títulos tienen mayor peso visual; las tarjetas incorporan líneas
-y formas geométricas en coral, amarillo y verde suave.
-
-| Color | Hexadecimal | Uso |
-| --- | --- | --- |
-| Negro | `#090B10` | Fondo principal |
-| Grafito | `#131720` | Tarjetas y formularios |
-| Blanco | `#F4F5FA` | Texto principal |
-| Coral | `#FF6B58` | Botones y acentos |
-| Amarillo | `#FFB54D` | Foco de teclado y destacados |
-| Verde suave | `#83B6A8` | Enlaces y acentos secundarios |
-
-Las vistas comparten estilos adaptables a pantallas pequeñas y foco visible
-para navegación por teclado.
-
-## Demostración
-
-### Windows
-
-Después de compilar:
+**Windows PowerShell:**
 
 ```powershell
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass   # solo si PowerShell bloquea el script
 ./scripts/run-demo.ps1
 ```
 
-El script inicia el perfil `demo` en un puerto libre. Genera una contraseña
-aleatoria en `.tools/demo-password.txt`, un archivo local excluido de Git y del
-ZIP de entrega. Si ya existe la variable `GAMER_DEMO_PASSWORD`, utiliza ese valor.
+Los scripts comprueban el `.env` y Docker, ejecutan `docker compose up --build -d`
+y esperan a que la aplicación responda. También puedes usar Docker Compose
+directamente:
+
+```bash
+docker compose up --build -d
+```
+
+La primera vez descarga las imágenes y las dependencias, y tarda unos minutos.
+
+### 3. Abrir la aplicación
+
+Abre [http://localhost/recetas](http://localhost/recetas). También están
+disponibles `/` y `/home`.
 
 | Cuenta de prueba | Contraseña |
 | --- | --- |
-| `gamer1@example.test` | Contraseña local de demostración |
-| `gamer2@example.test` | Contraseña local de demostración |
-| `gamer3@example.test` | Contraseña local de demostración |
+| `gamer1@example.test` | Valor de `GAMER_DEMO_PASSWORD` en `.env` |
+| `gamer2@example.test` | Valor de `GAMER_DEMO_PASSWORD` en `.env` |
+| `gamer3@example.test` | Valor de `GAMER_DEMO_PASSWORD` en `.env` |
 
-Para solicitar un puerto concreto:
-
-```powershell
-./scripts/run-demo.ps1 -Port 18080
-```
-
-### Otros entornos
-
-Define `GAMER_DEMO_PASSWORD` en el entorno y ejecuta el JAR con
-`--spring.profiles.active=demo`. La contraseña debe tener al menos 12 caracteres
-y no superar 72 bytes UTF-8.
+### Comandos útiles
 
 ```bash
-"$JAVA_HOME/bin/java" -jar target/gamer-events-0.0.1-SNAPSHOT.jar --server.port=18080 --spring.profiles.active=demo
+docker compose ps                       # estado; mysql debe aparecer como "healthy"
+docker compose logs -f gamer-events     # log de la aplicación (Ctrl+C para salir)
+docker compose down                     # detiene y elimina los contenedores; los datos se conservan
+docker compose up --build -d            # vuelve a construir tras cambiar el código
 ```
 
-El inicializador crea tres cuentas, tres eventos y tres anuncios. No duplica
-los datos al reiniciar ni cambia las contraseñas de cuentas existentes. Conserva
-la contraseña elegida para seguir usando las cuentas creadas.
+> **Advertencia:** `docker compose down -v` elimina también el volumen de MySQL y
+> **borra todos los datos**. No lo uses en el servidor.
+
+## Variables de entorno
+
+| Variable | Uso | Requisito |
+| --- | --- | --- |
+| `GAMER_DEMO_PASSWORD` | Contraseña de las tres cuentas demo | Entre 12 caracteres y 72 bytes |
+| `JWT_SECRET` | Firma de los tokens JWT (HS256) | Al menos 32 bytes; sin él la aplicación no arranca |
+| `DB_NAME` | Nombre de la base de datos | Por defecto `gamer_events` |
+| `DB_USERNAME` | Usuario de MySQL de la aplicación | Por defecto `gamer_events` |
+| `DB_PASSWORD` | Contraseña de ese usuario | Obligatoria |
+| `MYSQL_ROOT_PASSWORD` | Contraseña del administrador de MySQL | Obligatoria; solo para administración |
+
+La aplicación se conecta con un usuario que solo tiene permisos sobre su propia
+base de datos, nunca como `root`. Evita el carácter `$` en los valores: Docker
+Compose lo interpreta como una variable.
+
+## Rutas públicas y privadas
+
+| Funcionalidad | Web | API | Acceso |
+| --- | --- | --- | --- |
+| Inicio | `GET /`, `/home`, `/recetas` | `GET /api/home` | Público |
+| Búsqueda de eventos | `GET /eventos` | `GET /api/events` | Público |
+| Detalle de evento | `GET /eventos/{id}` | `GET /api/events/{id}` | **Privado** |
+| Inicio de sesión | `/login` (formulario) | `POST /api/auth/login` | Público |
+| Registro | `/registro` | — | Público |
+| Perfil | `/perfil` | — | **Privado** |
+| Cierre de sesión | `POST /logout` | — | Privado |
+
+- **Web:** las rutas privadas requieren una sesión iniciada; sin ella, redirigen a `/login`.
+- **API:** las rutas privadas requieren `Authorization: Bearer <token>`; sin token responden `401`. Una sesión web no da acceso a la API.
+
+### Filtros de búsqueda
+
+`/eventos` y `/api/events` aceptan los mismos parámetros. Todos son opcionales y
+se combinan:
+
+| Parámetro | Ejemplo | Coincidencia |
+| --- | --- | --- |
+| `name` | `?name=nexus` | Parcial, sin distinguir mayúsculas |
+| `game` | `?game=Valorant` | Exacta |
+| `category` | `?category=Esports` | Exacta |
+| `country` | `?country=Chile` | Exacta |
+| `city` | `?city=Santiago` | Exacta (solo eventos presenciales) |
+| `date` | `?date=2026-12-05` | Día del evento (`AAAA-MM-DD`) |
+| `modality` | `?modality=ONLINE` | `PRESENCIAL` u `ONLINE` |
+
+## API REST y JWT
+
+### 1. Obtener el token
+
+```bash
+curl -X POST http://localhost/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"gamer1@example.test","password":"TU_GAMER_DEMO_PASSWORD"}'
+```
+
+```json
+{ "token": "eyJhbGciOiJIUzI1NiJ9..." }
+```
+
+El token se firma con HS256, contiene el correo del usuario (`sub`), el emisor
+(`gamer-events`) y el rol, y **expira a los 30 minutos**.
+
+### 2. Usar el token en la API privada
+
+```bash
+curl http://localhost/api/events/1 -H "Authorization: Bearer EL_TOKEN"
+```
+
+Las APIs públicas no necesitan token:
+
+```bash
+curl http://localhost/api/home
+curl "http://localhost/api/events?country=Chile&modality=PRESENCIAL"
+```
+
+### Postman
+
+1. **Login:** `POST http://localhost/api/auth/login`. En **Body**, elige **raw** y
+   **JSON**, y envía el correo y la contraseña. Copia el `token` de la respuesta.
+2. **Detalle:** `GET http://localhost/api/events/1`. En **Authorization**, elige
+   **Bearer Token** y pega el token, sin la palabra `Bearer`.
+
+Para no copiar el token a mano, en la pestaña **Scripts → Post-response** del
+login agrega `pm.environment.set("token", pm.response.json().token);` y usa
+`{{token}}` en las demás solicitudes, con un environment seleccionado.
+
+### Respuestas de error
+
+Todos los errores de la API tienen el formato `{"error": "..."}`:
+
+| Código | Mensaje | Cuándo |
+| --- | --- | --- |
+| `400` | `Solicitud inválida.` | Parámetros, cuerpo JSON o identificador inválidos |
+| `401` | `Credenciales inválidas.` | Correo inexistente o contraseña incorrecta en el login |
+| `401` | `Se requiere un token Bearer.` | API privada sin token |
+| `401` | `Token inválido o expirado.` | Token alterado, mal formado o vencido |
+| `404` | `Evento no encontrado.` | El evento no existe |
 
 ## Persistencia
 
 | Entorno | Base de datos |
 | --- | --- |
-| Desarrollo normal | `data/gamerevents.mv.db` |
-| Demostración | `data/demo-gamerevents.mv.db` |
-| Pruebas automatizadas | H2 en memoria, aislada de los datos locales |
+| Aplicación (Docker) | MySQL 8.4, en el volumen `mysql-data` |
+| Pruebas automatizadas | H2 en memoria y, si Docker está disponible, MySQL 8.4 con Testcontainers |
 
-Los registros y perfiles se conservan entre reinicios. Las bases locales están
-excluidas de Git. H2 y `ddl-auto=update` se utilizan para desarrollo y evaluación;
-la configuración de producción requiere una revisión específica.
+- Los datos se guardan en un **volumen con nombre** de Docker: sobreviven a
+  `docker compose down`, a reinicios y a la reconstrucción de los contenedores.
+- El esquema se crea y actualiza al arrancar (`ddl-auto=update`).
+- El perfil `demo`, activo en Docker Compose, crea tres cuentas, seis eventos
+  (presenciales y online, de distintos países) y tres banners la primera vez. No
+  duplica datos al reiniciar ni cambia las contraseñas de cuentas existentes.
+- La aplicación y MySQL usan la zona horaria `America/Santiago`.
 
-## Arquitectura MVC
+## Arquitectura
 
 ```text
 src/main/java/cl/duoc/gamerevents/
-├── config/          # Seguridad y carga de datos demo
-├── controller/      # Rutas MVC y recepción de formularios
-├── model/           # Entidades y formularios validados
-├── repository/      # Acceso a datos mediante Spring Data JPA
+├── config/          # Seguridad (cadenas web y API), JWT y datos demo
+├── controller/      # Controladores web (Thymeleaf) y REST (/api)
+├── exception/       # Excepciones y respuestas de error JSON de la API
+├── model/           # Entidades JPA, formularios y DTO de la API
+├── repository/      # Acceso a datos con Spring Data JPA
 └── service/         # Reglas de negocio y transacciones
 src/main/resources/
 ├── templates/       # Plantillas Thymeleaf
 ├── static/css/      # Estilos compartidos
-└── static/images/   # Avatares locales
-src/test/            # Pruebas de integración
-scripts/             # Ejecución demo y empaquetado
-docs/               # Documentación académica y técnica
+└── static/images/   # Avatares e imágenes de eventos (SVG propios)
+src/test/            # Pruebas unitarias y de integración
+scripts/             # Ejecución con Docker y empaquetado
+docs/                # Documentación académica y técnica
 ```
+
+La web y la API usan los mismos servicios: los filtros y los datos son idénticos
+en ambas. La API devuelve DTO (`EventSummary`, `EventDetail`, `HomeResponse`),
+nunca entidades JPA, para que el listado público no exponga datos del detalle.
 
 ## Seguridad
 
-- Inicio, registro, login y recursos estáticos son públicos; las demás rutas requieren autenticación.
-- Las contraseñas se almacenan mediante BCrypt y no se vuelven a mostrar en formularios con errores.
-- El correo se normaliza y tiene una restricción única en la base de datos.
-- CSRF permanece activo en registro, login, edición de perfil y logout.
-- El perfil se obtiene del usuario autenticado; enviar otro identificador no cambia la cuenta editada.
-- Los formularios usan objetos específicos y validación del lado servidor.
-- Thymeleaf escapa el contenido y los avatares se limitan a opciones locales.
-- La consola H2, la carga de archivos y Open Session in View están desactivados.
-- El servidor escucha en `127.0.0.1` durante el desarrollo.
+- **Dos cadenas de Spring Security:**
+  - `/api/**`: sin sesión ni CSRF, autenticación con JWT y `401` en JSON.
+  - Resto de rutas: formulario de login, sesión y CSRF.
+- El secreto JWT se lee de `JWT_SECRET`; la aplicación no arranca si falta o es corto.
+- Contraseñas con BCrypt. El login de la API responde lo mismo ante un correo
+  inexistente o una contraseña incorrecta, y tarda lo mismo en ambos casos.
+- Los eventos online solo aceptan enlaces `https://`, que se abren con
+  `rel="noopener noreferrer"`.
+- La aplicación se conecta a MySQL con un usuario limitado a su base de datos.
+  MySQL no publica ningún puerto fuera de Docker.
+- Thymeleaf escapa el contenido; el perfil solo modifica la cuenta autenticada.
+- La carga de archivos y Open Session in View están desactivados.
 
-No se incluyen contraseñas de acceso reales, bases locales ni archivos de entorno
-en el repositorio. El usuario H2 `sa` sin contraseña corresponde exclusivamente
-a la configuración local de desarrollo.
+El repositorio no incluye contraseñas reales, archivos `.env` ni bases de datos.
 
 ## Pruebas
 
-```powershell
-./mvnw.cmd clean verify
+```bash
+./mvnw clean verify          # macOS y Linux
+./mvnw.cmd clean verify      # Windows
 ```
 
-La verificación registrada incluye **27 pruebas aprobadas**, sin fallos ni
- errores: autenticación de tres cuentas demo, registro, unicidad de correo,
-BCrypt, CSRF, validación, aislamiento del perfil, logout, filtros, detalle privado
-y escape de HTML. Los resultados de cada ejecución quedan en
-`target/surefire-reports/`.
+La suite tiene **95 pruebas**. Las pruebas de integración usan H2 en memoria y
+no necesitan Docker. Las 7 pruebas de `MySqlIntegrationTests` levantan un MySQL
+8.4 real con Testcontainers: verifican tildes, emojis, fechas, tamaño de las
+filas y la búsqueda por nombre. Si Docker no está disponible, se omiten en vez de
+fallar.
+
+Los resultados de cada ejecución quedan en `target/surefire-reports/`.
+
+## Solución de problemas
+
+| Síntoma | Causa y solución |
+| --- | --- |
+| La aplicación no muestra eventos | Falta el perfil `demo`. Docker Compose y `run-demo` lo activan. Si ejecutas de otra forma, usa `SPRING_PROFILES_ACTIVE=demo` |
+| `Access denied for user 'gamer_events'` tras cambiar `DB_PASSWORD` | MySQL conserva la contraseña con la que se creó el volumen. Restaura el valor anterior en `.env`, o borra el volumen con `docker compose down -v` (se pierden los datos) |
+| `JWT_SECRET debe tener al menos 32 bytes` | Falta `JWT_SECRET` en `.env` o es demasiado corto |
+| Windows: *running scripts is disabled* | Ejecuta `Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass` en esa ventana |
+| El puerto 80 está ocupado | Detén el otro servicio, o cambia `"80:8080"` en `docker-compose.yml` (por ejemplo, `"8081:8080"`) |
+| VS Code marca errores, pero `./mvnw test` pasa | Ejecuta **Java: Clean Java Language Server Workspace** en la paleta de comandos |
+| `docker compose` no conecta con Docker | Abre Docker Desktop y espera a que termine de iniciar |
 
 ## Entrega académica
 
-```powershell
-./scripts/package-source.ps1
+```bash
+./scripts/package-source.sh      # macOS y Linux
+./scripts/package-source.ps1     # Windows
 ```
 
-Genera `dist/gamer-events-semana1-fuente.zip` con el código, pruebas, wrapper,
-scripts y documentación. Excluye herramientas locales, credenciales, bases de
-datos, metadatos Git y artefactos de compilación.
-
-La actividad solicita acceso público mediante `http://[IP]/recetas`. La ruta está
-implementada; el despliegue en una máquina virtual está pendiente.
+Genera `dist/gamer-events-etapa2-fuente.zip` con el código, las pruebas, el
+wrapper, la configuración de Docker, los scripts y la documentación. Incluye
+`.env.example`, pero nunca `.env`, bases de datos, metadatos de Git ni
+artefactos de compilación.
 
 ## Documentación
 
-- [Configuración inicial y verificación](docs/etapa-1.md)
-- [Etapas funcionales y pruebas](docs/etapas-funcionales.md)
+- [Configuración inicial y verificación (Etapa 1)](docs/etapa-1.md)
+- [Etapas funcionales y pruebas (Etapa 1)](docs/etapas-funcionales.md)
+- [APIs con JWT, MySQL y funcionalidades del caso (Etapa 2)](docs/etapa-2-auth-jwt.md)
 - [Despliegue y entrega](docs/despliegue-y-entrega.md)
 
 ## Referencias
@@ -241,3 +318,5 @@ implementada; el despliegue en una máquina virtual está pendiente.
 - [Spring Boot: requisitos del sistema](https://docs.spring.io/spring-boot/4.0/system-requirements.html)
 - [Spring Security: formulario de autenticación](https://docs.spring.io/spring-security/reference/7.0/servlet/authentication/passwords/form.html)
 - [Spring Security: protección CSRF](https://docs.spring.io/spring-security/reference/7.0/servlet/exploits/csrf.html)
+- [MySQL: imagen oficial de Docker](https://hub.docker.com/_/mysql)
+- [Testcontainers: módulo MySQL](https://java.testcontainers.org/modules/databases/mysql/)

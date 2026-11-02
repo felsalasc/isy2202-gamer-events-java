@@ -182,10 +182,15 @@ Se amplía `GamerEvent` con los datos que la pauta exige y que hoy no existen:
   - [x] 5.3 Pruebas contra MySQL real con Testcontainers (se omiten si no hay
     Docker): escape del `LIKE`, tildes y UTF-8 sin parámetros en la URL, y
     tamaño de las filas.
-- [ ] **Parte 6 — Documentación.**
-  - [ ] README: variables de entorno, ejecución, ejemplos de login y uso del
-    token, tabla de rutas públicas y privadas.
-  - [ ] Cierre de este registro de verificación.
+- [x] **Parte 6 — Documentación.**
+  - [x] README: ejecución con Docker en macOS, Linux y Windows, variables de
+    entorno, tabla de rutas públicas y privadas, filtros, login y uso del token
+    (curl y Postman), errores de la API y solución de problemas.
+  - [x] ZIP de entrega renombrado a `gamer-events-etapa2-fuente.zip`, con los
+    archivos de Docker y sin `.env`.
+  - [x] Cierre de este registro de verificación.
+  - [ ] Guía de despliegue en la VM de Azure (`despliegue-y-entrega.md`): se
+    escribe después del despliegue real, con los pasos que funcionen.
 
 ## Criterios de aceptación
 
@@ -261,4 +266,58 @@ Resultados:
     endpoints.
   - `GET /perfil` sigue redirigiendo a `/login`.
 
-Pendientes: las Partes 3 a 6.
+## Registro de verificación de las Partes 3 a 6 (2 de noviembre de 2026)
+
+```bash
+./mvnw clean verify
+```
+
+Resultados:
+
+- **95 pruebas, 0 fallos, 0 errores, 0 omitidas** (con Docker disponible).
+  - `EventSearchTests`: 15.
+  - `UserJourneysTests`: 12.
+  - `ApiLoginTests`: 9.
+  - `HomeIntegrationTests`: 9.
+  - `ApiSecurityTests`: 8.
+  - `EventApiDetailTests`: 8.
+  - `EventApiPublicTests`: 7.
+  - `MySqlIntegrationTests`: 7 (MySQL 8.4 real con Testcontainers).
+  - `EventDetailTests`: 5.
+  - `EventJourneysTests`: 5.
+  - `GamerEventTests`: 5.
+  - `JwtTokenTests`: 3.
+  - `DemoDataTests`: 2.
+- Cada paso se implementó con las pruebas escritas antes del código, y se vio
+  fallar por el motivo esperado. Excepciones:
+  - Las pruebas de `MySqlIntegrationTests` caracterizan código existente en una
+    base nueva, así que pasaron desde la primera ejecución.
+  - `runsAgainstRealMySql84` y `cityFilterIgnoresAccentsInMySql` demuestran que
+    se ejecutan sobre MySQL y no sobre H2: la segunda fallaría en H2.
+
+Aplicación real con `docker compose up --build -d` (MySQL 8.4.13):
+
+- MySQL queda `healthy` antes de que arranque la aplicación. El perfil es
+  `demo` y la conexión es `jdbc:mysql://mysql:3306/gamer_events`.
+- Login de la API de `gamer1`, `gamer2` y `gamer3`: 200.
+- `/api/home` responde con 3 próximos, 3 destacados y 3 banners.
+- Los filtros funcionan, también con tildes. `name=%` responde `[]`.
+- El detalle con token responde 200; sin token, 401. Un evento inexistente
+  responde 404 `{"error":"Evento no encontrado."}`.
+- La hora de los contenedores es `-03` (`TZ=America/Santiago`).
+- Persistencia: un usuario registrado por la web sigue existiendo y puede
+  iniciar sesión después de `docker compose down` y `up`.
+- Mínimo privilegio: el usuario `gamer_events` no puede crear otra base de
+  datos (`Access denied`).
+- MySQL no responde en el puerto 3306 del equipo anfitrión.
+- La búsqueda web y el detalle se revisaron en capturas a 1280 px. La imagen
+  del detalle se corrigió para que no apareciera recortada.
+
+No verificado en este equipo:
+
+- `scripts/run-demo.ps1` y `scripts/package-source.ps1`: no hay PowerShell en
+  macOS. Deben probarse en Windows.
+- La omisión de `MySqlIntegrationTests` sin Docker: Testcontainers siempre
+  encontró Docker Desktop. La garantiza
+  `@Testcontainers(disabledWithoutDocker = true)`.
+- El despliegue en la VM de Azure.

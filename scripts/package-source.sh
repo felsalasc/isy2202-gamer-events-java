@@ -6,7 +6,7 @@ ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT_DIR"
 
 DIST_DIR="$ROOT_DIR/dist"
-ZIP_FILE="$DIST_DIR/gamer-events-semana1-fuente.zip"
+ZIP_FILE="$DIST_DIR/gamer-events-etapa2-fuente.zip"
 
 mkdir -p "$DIST_DIR"
 rm -f "$ZIP_FILE"
@@ -23,6 +23,7 @@ ITEMS=(
     "README.md"
     "Dockerfile"
     "docker-compose.yml"
+    ".dockerignore"
     ".env.example"
     "src"
     "docs"
