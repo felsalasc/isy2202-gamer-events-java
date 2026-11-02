@@ -1,0 +1,7 @@
+.env
+.git
+.tools
+.vscode
+data
+dist
+target

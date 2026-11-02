@@ -174,7 +174,7 @@ Se amplía `GamerEvent` con los datos que la pauta exige y que hoy no existen:
     (`test`). Conexión por variables de entorno (`DB_HOST`, `DB_PORT`,
     `DB_NAME`, `DB_USERNAME`, `DB_PASSWORD`). El perfil `demo` ya no cambia la
     base, solo carga los datos de ejemplo.
-  - [ ] 5.2 Servicio `mysql:8.4` en `docker-compose.yml` con volumen con nombre,
+  - [x] 5.2 Servicio `mysql:8.4` en `docker-compose.yml` con volumen con nombre,
     healthcheck y sin puerto publicado (destino final: VM de Azure). La app
     espera a que MySQL esté sano y corre con `TZ=America/Santiago`: dentro de
     un contenedor la JVM usa UTC por defecto, y `LocalDateTime.now()` decide
