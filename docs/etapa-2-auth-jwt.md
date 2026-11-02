@@ -162,8 +162,11 @@ Se amplía `GamerEvent` con los datos que la pauta exige y que hoy no existen:
     requisitos, inscripción e imagen del evento en `event-detail.html`;
     `/eventos/{id}` sigue privado.
 - [ ] **Parte 4 — APIs públicas y privadas.** Requisitos 2, 4, 5 y 6.
-  - [ ] `GET /api/home` y `GET /api/events` públicos, con DTO de resumen.
-  - [ ] `GET /api/events/{id}` privado con JWT, con DTO de detalle.
+  - [x] 4.1 `GET /api/home` y `GET /api/events` públicos, con DTO de resumen
+    (`EventSummary`, `HomeResponse`, `BrandAdResponse`) y los mismos filtros de
+    la búsqueda web. Errores 400 de la API con formato `{"error": "..."}`.
+  - [ ] 4.2 `GET /api/events/{id}` privado con JWT, con DTO de detalle y
+    `EventNotFoundException` (404) compartida por la web y la API.
   - [ ] Pruebas: acceso anónimo a las públicas, 401 sin token en el detalle,
     200 con token y 404 para un evento inexistente.
 - [ ] **Parte 5 — H2 a MySQL.** Requisitos 1 y 5.
