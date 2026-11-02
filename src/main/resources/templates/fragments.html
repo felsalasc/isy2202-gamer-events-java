@@ -30,6 +30,7 @@
     <div class="event-card-body">
         <p class="eyebrow" th:text="${#temporals.format(event.startsAt, 'dd/MM/yyyy')}">Fecha</p>
         <h3><a th:href="@{/eventos/{id}(id=${event.id})}" th:text="${event.title}">Evento</a></h3>
+        <p class="event-game" th:text="${event.game}">Videojuego</p>
         <p class="muted" th:text="${event.online} ? |Online · ${event.country}| : |${event.location}, ${event.country}|">Ubicación</p>
         <a class="text-link" th:href="@{/eventos/{id}(id=${event.id})}">Ver detalles <span aria-hidden="true">↗</span></a>
     </div>

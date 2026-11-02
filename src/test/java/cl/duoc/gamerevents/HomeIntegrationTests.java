@@ -40,7 +40,8 @@ class HomeIntegrationTests {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"/perfil", "/eventos", "/eventos/1", "/h2-console"})
+    // "/eventos" salió de esta lista en la Etapa 2: la pauta define la búsqueda como pública.
+    @ValueSource(strings = {"/perfil", "/eventos/1", "/h2-console"})
     void unimplementedOrPrivateRoutesAreNotPublic(String path) throws Exception {
         mvc.perform(get(path)).andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/login"));

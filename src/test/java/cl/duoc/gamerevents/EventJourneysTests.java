@@ -67,7 +67,7 @@ class EventJourneysTests {
         event("Otra fecha", "Esports", "Santiago", date.plusDays(1), false);
         event("Otra categoría", "Comunidad", "Santiago", date, false);
         mvc.perform(get("/eventos").with(user("gamer@example.test"))
-                .param("category", "Esports").param("location", "Santiago").param("date", date.toString()))
+                .param("category", "Esports").param("city", "Santiago").param("date", date.toString()))
                 .andExpect(status().isOk()).andExpect(content().string(containsString("Torneo seleccionado")))
                 .andExpect(content().string(not(containsString("Otra ciudad"))))
                 .andExpect(content().string(not(containsString("Otra fecha"))))

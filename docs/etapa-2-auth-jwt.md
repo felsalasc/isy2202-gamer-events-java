@@ -154,7 +154,7 @@ Se amplía `GamerEvent` con los datos que la pauta exige y que hoy no existen:
     nuevos en `GamerEvent`, fotos del evento y unos 6 eventos de demo
     (presenciales y online, varios países y videojuegos). Actualizar el
     `insert` SQL del helper de `EventJourneysTests`.
-  - [ ] 3.2 Búsqueda pública: `record EventFilter` con nombre (coincidencia
+  - [x] 3.2 Búsqueda pública: `record EventFilter` con nombre (coincidencia
     parcial), videojuego, categoría, país, ciudad, fecha y modalidad;
     formulario en `events.html`; `/eventos` público. La prueba que exigía
     `/eventos` privado se actualiza porque el requisito cambió.
