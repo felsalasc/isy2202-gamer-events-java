@@ -149,20 +149,18 @@ Se amplía `GamerEvent` con los datos que la pauta exige y que hoy no existen:
     login correcto, contraseña incorrecta, usuario inexistente y uso del token
     (commit `164409d`). Los errores de la API se responden desde
     `exception/ApiExceptionHandler` con el formato `{"error": "..."}`.
-- [ ] **Parte 3 — Modelo de eventos completo y búsqueda pública.** Requisito 6.
-  - [ ] 3.1 Modelo y datos de demo: enum `Modality` guardado como texto, campos
+- [x] **Parte 3 — Modelo de eventos completo y búsqueda pública.** Requisito 6.
+  - [x] 3.1 Modelo y datos de demo: enum `Modality` guardado como texto, campos
     nuevos en `GamerEvent`, fotos del evento y unos 6 eventos de demo
     (presenciales y online, varios países y videojuegos). Actualizar el
     `insert` SQL del helper de `EventJourneysTests`.
-  - [ ] 3.2 Búsqueda pública: `record EventFilter` con nombre (coincidencia
+  - [x] 3.2 Búsqueda pública: `record EventFilter` con nombre (coincidencia
     parcial), videojuego, categoría, país, ciudad, fecha y modalidad;
     formulario en `events.html`; `/eventos` público. La prueba que exigía
     `/eventos` privado se actualiza porque el requisito cambió.
-  - [ ] 3.3 Detalle completo: videojuego, modalidad, dirección o enlace,
-    requisitos, inscripción y galería de fotos en `event-detail.html`;
+  - [x] 3.3 Detalle completo: videojuego, modalidad, dirección o enlace,
+    requisitos, inscripción e imagen del evento en `event-detail.html`;
     `/eventos/{id}` sigue privado.
-  - Pendiente de decidir: una o varias fotos por evento, e ilustraciones SVG
-    propias o fotos de un banco libre.
 - [ ] **Parte 4 — APIs públicas y privadas.** Requisitos 2, 4, 5 y 6.
   - [ ] `GET /api/home` y `GET /api/events` públicos, con DTO de resumen.
   - [ ] `GET /api/events/{id}` privado con JWT, con DTO de detalle.

@@ -60,8 +60,9 @@ public class SecurityConfig {
         SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
                 http.authorizeHttpRequests(authorize -> authorize
                                 .dispatcherTypeMatchers(DispatcherType.ERROR).permitAll()
-                                .requestMatchers(HttpMethod.GET, "/", "/home", "/recetas", "/login", "/registro",
-                                                "/css/**", "/images/**")
+                                // "/eventos" es la búsqueda pública; "/eventos/{id}" (detalle) no calza y queda privado.
+                                .requestMatchers(HttpMethod.GET, "/", "/home", "/recetas", "/eventos", "/login",
+                                                "/registro", "/css/**", "/images/**")
                                 .permitAll()
                                 .requestMatchers(HttpMethod.POST, "/registro").permitAll()
                                 .anyRequest().authenticated())

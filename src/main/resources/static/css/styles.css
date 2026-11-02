@@ -54,6 +54,7 @@ h2 { font-size: 1.55rem; font-weight: 700; letter-spacing: -.035em; margin-block
 .event-card h3 { margin: .6rem 0; font-size: 1.2rem; line-height: 1.4; letter-spacing: -.02em; overflow-wrap: anywhere; }
 .event-card h3 a { text-decoration: none; }
 .event-card h3 a:hover { text-decoration: underline; text-underline-offset: 4px; }
+.event-game { margin: 0 0 .3rem; color: var(--amber); font-weight: 600; font-size: .95rem; }
 .text-link { color: var(--sage); font-weight: 650; font-size: .9rem; text-underline-offset: 5px; }
 .muted { color: var(--muted); }
 .brand-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.4rem; }
@@ -93,10 +94,11 @@ legend { font-weight: 700; }
 .avatar-options label:has(input:checked) { border-color: var(--coral); background: #22202a; }
 .avatar-options img { width: 70px; height: 70px; }
 .checkbox-label { display: flex; gap: .6rem; align-items: center; margin-top: 1.5rem; }
-.filters { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)) auto; gap: 1rem; align-items: end; margin-bottom: 1rem; }
+.filters { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1rem; align-items: end; margin-bottom: 1rem; }
 .filters label { margin-top: 0; }
 .filters .button { margin: 0; min-height: 52px; }
 .filter-actions { display: flex; gap: 1rem; align-items: center; margin-bottom: 2rem; }
+.event-hero { display: block; width: 100%; max-width: 720px; height: auto; aspect-ratio: 16 / 9; object-fit: contain; margin: 0 0 2rem; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); }
 .event-detail { display: grid; grid-template-columns: 2fr 1fr; gap: 2rem; }
 .event-detail h2 { margin-top: 1.8rem; }
 .event-detail h2:first-child { margin-top: 0; }
