@@ -1,14 +1,45 @@
+# Gamer Events: aplicación Spring Boot + MySQL.
+# Uso: docker compose up --build -d  
 services:
+  mysql:
+    image: mysql:8.4
+    container_name: gamer-events-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?Define MYSQL_ROOT_PASSWORD en .env}
+      MYSQL_DATABASE: ${DB_NAME:-gamer_events}
+      MYSQL_USER: ${DB_USERNAME:-gamer_events}
+      MYSQL_PASSWORD: ${DB_PASSWORD:?Define DB_PASSWORD en .env}
+      TZ: America/Santiago
+    volumes:
+      - mysql-data:/var/lib/mysql
+    healthcheck:
+      test: [ "CMD-SHELL", "MYSQL_PWD=\"$$MYSQL_PASSWORD\" mysqladmin ping -h 127.0.0.1 -u \"$$MYSQL_USER\" --silent" ]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 30s
+
   gamer-events:
     build: .
     container_name: gamer-events-app
     restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
     ports:
       - "80:8080"
     environment:
-      - SERVER_ADDRESS=0.0.0.0
-      - SPRING_PROFILES_ACTIVE=demo
-      - GAMER_DEMO_PASSWORD=${GAMER_DEMO_PASSWORD}
-      - JWT_SECRET=${JWT_SECRET}
-    volumes:
-      - ./data:/app/data
+      SERVER_ADDRESS: 0.0.0.0
+      SPRING_PROFILES_ACTIVE: demo
+      TZ: America/Santiago
+      GAMER_DEMO_PASSWORD: ${GAMER_DEMO_PASSWORD:?Define GAMER_DEMO_PASSWORD en .env}
+      JWT_SECRET: ${JWT_SECRET:?Define JWT_SECRET en .env}
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_NAME: ${DB_NAME:-gamer_events}
+      DB_USERNAME: ${DB_USERNAME:-gamer_events}
+      DB_PASSWORD: ${DB_PASSWORD}
+
+volumes:
+  mysql-data:

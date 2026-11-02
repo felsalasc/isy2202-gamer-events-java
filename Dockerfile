@@ -14,9 +14,6 @@ RUN ./mvnw clean package -DskipTests -B
 FROM eclipse-temurin:17-jre-jammy
 WORKDIR /app
 
-# Crear directorio para la base de datos persistente H2
-RUN mkdir -p /app/data
-
 COPY --from=build /app/target/gamer-events-0.0.1-SNAPSHOT.jar app.jar
 
 # Configuración por defecto para entorno Docker
