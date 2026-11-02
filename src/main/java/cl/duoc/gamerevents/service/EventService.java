@@ -13,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
+import cl.duoc.gamerevents.exception.EventNotFoundException;
 import cl.duoc.gamerevents.model.*;
 import cl.duoc.gamerevents.repository.*;
 
@@ -56,7 +57,7 @@ public class EventService {
     }
 
     public GamerEvent detail(long id) {
-        return events.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        return events.findById(id).orElseThrow(EventNotFoundException::new);
     }
 
     /** Búsqueda pública: aplica solo los filtros con valor, combinados con AND. */

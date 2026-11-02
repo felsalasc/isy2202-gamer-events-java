@@ -3,9 +3,11 @@ package cl.duoc.gamerevents.controller;
 import java.util.List;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import cl.duoc.gamerevents.model.BrandAdResponse;
+import cl.duoc.gamerevents.model.EventDetail;
 import cl.duoc.gamerevents.model.EventFilter;
 import cl.duoc.gamerevents.model.EventSummary;
 import cl.duoc.gamerevents.model.HomeResponse;
@@ -31,5 +33,10 @@ public class EventApiController {
     @GetMapping("/events")
     public List<EventSummary> search(@ModelAttribute EventFilter filter) {
         return events.search(filter).stream().map(EventSummary::from).toList();
+    }
+
+    @GetMapping("/events/{id}")
+    public EventDetail detail(@PathVariable long id) {
+        return EventDetail.from(events.detail(id));
     }
 }

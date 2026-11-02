@@ -22,6 +22,11 @@ public class ApiExceptionHandler {
                 .body(new ApiError(exception.getMessage()));
     }
 
+    @ExceptionHandler(EventNotFoundException.class)
+    ResponseEntity<ApiError> eventNotFound(EventNotFoundException exception) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiError(exception.getMessage()));
+    }
+
     @ExceptionHandler({ BindException.class, HttpMessageNotReadableException.class,
             MethodArgumentTypeMismatchException.class })
     ResponseEntity<ApiError> badRequest(Exception exception) {
