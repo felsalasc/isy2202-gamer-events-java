@@ -1,6 +1,7 @@
 package cl.duoc.gamerevents.config;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
@@ -69,12 +70,18 @@ public class JWTAuthorizationFilter extends OncePerRequestFilter {
             // Firma alterada, token expirado, malformado o de otro emisor: 401 sin detallar
             // la causa.
             SecurityContextHolder.clearContext();
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.setHeader("WWW-Authenticate", "Bearer");
-            response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-            response.getWriter().write("{\"error\":\"Token inválido o expirado.\"}");
+            writeUnauthorized(response, "Token inválido o expirado.");
             return;
         }
         filterChain.doFilter(request, response);
+    }
+
+    /** Respuesta 401 común de la API: JSON en UTF-8 y {@code WWW-Authenticate: Bearer}. */
+    public static void writeUnauthorized(HttpServletResponse response, String message) throws IOException {
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        response.setHeader("WWW-Authenticate", "Bearer");
+        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+        response.setCharacterEncoding(StandardCharsets.UTF_8.name());
+        response.getWriter().write("{\"error\":\"" + message + "\"}");
     }
 }
