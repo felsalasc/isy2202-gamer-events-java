@@ -9,5 +9,6 @@ services:
       - SERVER_ADDRESS=0.0.0.0
       - SPRING_PROFILES_ACTIVE=demo
       - GAMER_DEMO_PASSWORD=${GAMER_DEMO_PASSWORD}
+      - JWT_SECRET=${JWT_SECRET}
     volumes:
       - ./data:/app/data

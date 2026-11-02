@@ -1,7 +1,6 @@
 package cl.duoc.gamerevents;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -18,13 +17,17 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @Transactional
 class EventJourneysTests {
-    @Autowired MockMvc mvc;
-    @Autowired JdbcTemplate jdbc;
+    @Autowired
+    MockMvc mvc;
+    @Autowired
+    JdbcTemplate jdbc;
 
     private void event(String title, String category, String location, LocalDate date, boolean featured) {
-        jdbc.update("insert into gamer_events(title,category,location,address,starts_at,description,organizers,services,exhibitors,featured) values(?,?,?,?,?,?,?,?,?,?)",
+        jdbc.update(
+                "insert into gamer_events(title,category,location,address,starts_at,description,organizers,services,exhibitors,featured) values(?,?,?,?,?,?,?,?,?,?)",
                 title, category, location, "Calle gamer 123", date.atTime(18, 30), "Descripción privada del encuentro",
-                "Equipo Gamer", "Estacionamiento, locomoción colectiva, comidas y alojamiento", "Estudio Indie", featured);
+                "Equipo Gamer", "Estacionamiento, locomoción colectiva, comidas y alojamiento", "Estudio Indie",
+                featured);
     }
 
     @Test

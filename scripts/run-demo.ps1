@@ -17,6 +17,16 @@ try {
         $env:GAMER_DEMO_PASSWORD = (Get-Content -LiteralPath '.tools/demo-password.txt' -Raw).Trim()
         Write-Host 'Contraseña de demostración en .tools/demo-password.txt (excluida de Git y del ZIP).'
     }
+    if (-not $env:JWT_SECRET) {
+        if (-not (Test-Path -LiteralPath '.tools/jwt-secret.txt')) {
+            $taskBytes = New-Object byte[] 48
+            $taskRng = [System.Security.Cryptography.RandomNumberGenerator]::Create()
+            try { $taskRng.GetBytes($taskBytes) } finally { $taskRng.Dispose() }
+            [Convert]::ToBase64String($taskBytes) | Set-Content -LiteralPath '.tools/jwt-secret.txt' -Encoding ascii
+        }
+        $env:JWT_SECRET = (Get-Content -LiteralPath '.tools/jwt-secret.txt' -Raw).Trim()
+        Write-Host 'Secreto JWT local en .tools/jwt-secret.txt (excluido de Git y del ZIP).'
+    }
     Write-Host 'Usuarios: gamer1@example.test, gamer2@example.test, gamer3@example.test'
     Write-Host 'El puerto se mostrará en la línea Tomcat started on port del log.'
     & $taskJava -jar 'target/gamer-events-0.0.1-SNAPSHOT.jar' '--spring.profiles.active=demo' "--server.port=$Port"
