@@ -141,20 +141,28 @@ Se amplía `GamerEvent` con los datos que la pauta exige y que hoy no existen:
     `docker-compose.yml` y los scripts `run-demo`.
   - [x] Desactivar el registro global del filtro.
   - [x] `JwtTokenTests`: secreto ausente o corto y contenido del token.
-- [ ] **Parte 2 — Login de la API y dos cadenas de seguridad.** Requisitos 2 a 4.
-  - [ ] 2.1 Separar `SecurityConfig` en una cadena `/api/**` (stateless, JWT,
+- [x] **Parte 2 — Login de la API y dos cadenas de seguridad.** Requisitos 2 a 4.
+  - [x] 2.1 Separar `SecurityConfig` en una cadena `/api/**` (stateless, JWT,
     401) y la cadena web. Pruebas sin token, con token inválido y con token
-    válido; pruebas web existentes en verde.
-  - [ ] 2.2 `LoginController` con `POST /api/auth/login` y BCrypt. Pruebas de
-    login correcto, contraseña incorrecta, usuario inexistente y uso del token.
+    válido; pruebas web existentes en verde (commit `dfc9b9f`).
+  - [x] 2.2 `LoginController` con `POST /api/auth/login` y BCrypt. Pruebas de
+    login correcto, contraseña incorrecta, usuario inexistente y uso del token
+    (commit `164409d`). Los errores de la API se responden desde
+    `exception/ApiExceptionHandler` con el formato `{"error": "..."}`.
 - [ ] **Parte 3 — Modelo de eventos completo y búsqueda pública.** Requisito 6.
-  - [ ] Campos nuevos en `GamerEvent` y datos de demo con fotos.
-  - [ ] Filtros por nombre, videojuego, país o ciudad y modalidad en
-    `EventService`.
-  - [ ] Formulario de búsqueda y detalle actualizados en `events.html` y
-    `event-detail.html`.
-  - [ ] `/eventos` público; `/eventos/{id}` sigue privado.
-  - [ ] Pruebas de cada filtro, de búsqueda anónima y de detalle protegido.
+  - [ ] 3.1 Modelo y datos de demo: enum `Modality` guardado como texto, campos
+    nuevos en `GamerEvent`, fotos del evento y unos 6 eventos de demo
+    (presenciales y online, varios países y videojuegos). Actualizar el
+    `insert` SQL del helper de `EventJourneysTests`.
+  - [ ] 3.2 Búsqueda pública: `record EventFilter` con nombre (coincidencia
+    parcial), videojuego, categoría, país, ciudad, fecha y modalidad;
+    formulario en `events.html`; `/eventos` público. La prueba que exigía
+    `/eventos` privado se actualiza porque el requisito cambió.
+  - [ ] 3.3 Detalle completo: videojuego, modalidad, dirección o enlace,
+    requisitos, inscripción y galería de fotos en `event-detail.html`;
+    `/eventos/{id}` sigue privado.
+  - Pendiente de decidir: una o varias fotos por evento, e ilustraciones SVG
+    propias o fotos de un banco libre.
 - [ ] **Parte 4 — APIs públicas y privadas.** Requisitos 2, 4, 5 y 6.
   - [ ] `GET /api/home` y `GET /api/events` públicos, con DTO de resumen.
   - [ ] `GET /api/events/{id}` privado con JWT, con DTO de detalle.
@@ -207,5 +215,40 @@ Resultados:
 - El `java` del PATH del equipo es 27.0.1. El proyecto declara
   `java.version` 17.
 
-Pendientes: las Partes 2 a 6. Todavía no hay endpoint de login ni APIs, así
-que el filtro JWT aún no participa en ninguna cadena de seguridad.
+## Registro de verificación de la Parte 2 (1 de noviembre de 2026)
+
+Pruebas nuevas: `ApiSecurityTests` (8) y `ApiLoginTests` (9). Antes de
+implementar, `ApiSecurityTests` falló 8 de 8: había un redirect 302 a `/login`
+en vez de 401, y la sesión web autenticaba `/api/**`. `ApiLoginTests` falló 8 de
+9 con 404, porque el endpoint no existía. `loginOnlyAcceptsPost` ya pasaba
+gracias a la cadena del paso 2.1.
+
+```bash
+./mvnw -q -B test
+```
+
+Resultados:
+
+- **47 pruebas, 0 fallos, 0 errores, 0 omitidas.**
+  - `HomeIntegrationTests`: 10.
+  - `UserJourneysTests`: 12.
+  - `ApiLoginTests`: 9.
+  - `ApiSecurityTests`: 8.
+  - `EventJourneysTests`: 4.
+  - `JwtTokenTests`: 3.
+  - `DemoDataTests`: 1.
+- Las pruebas siguen en verde después de mover el manejo de errores a
+  `exception/` (`InvalidCredentialsException`, `ApiError` y
+  `ApiExceptionHandler`), sin modificarlas.
+- Aplicación real con el perfil `demo` y `curl`:
+  - `gamer1`, `gamer2` y `gamer3` obtienen token (200).
+  - Contraseña incorrecta: 401 con `WWW-Authenticate: Bearer` y
+    `{"error":"Credenciales inválidas."}`.
+  - Cuerpo vacío: 400.
+  - `/api/**` sin token: 401 `{"error":"Se requiere un token Bearer."}`.
+  - Token inválido: 401 `{"error":"Token inválido o expirado."}`, en UTF-8.
+  - El token obtenido pasa la cadena `/api/**`: 404, porque aún no hay
+    endpoints.
+  - `GET /perfil` sigue redirigiendo a `/login`.
+
+Pendientes: las Partes 3 a 6.
