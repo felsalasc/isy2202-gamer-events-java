@@ -150,7 +150,7 @@ Se amplía `GamerEvent` con los datos que la pauta exige y que hoy no existen:
     (commit `164409d`). Los errores de la API se responden desde
     `exception/ApiExceptionHandler` con el formato `{"error": "..."}`.
 - [ ] **Parte 3 — Modelo de eventos completo y búsqueda pública.** Requisito 6.
-  - [ ] 3.1 Modelo y datos de demo: enum `Modality` guardado como texto, campos
+  - [x] 3.1 Modelo y datos de demo: enum `Modality` guardado como texto, campos
     nuevos en `GamerEvent`, fotos del evento y unos 6 eventos de demo
     (presenciales y online, varios países y videojuegos). Actualizar el
     `insert` SQL del helper de `EventJourneysTests`.
@@ -161,8 +161,9 @@ Se amplía `GamerEvent` con los datos que la pauta exige y que hoy no existen:
   - [ ] 3.3 Detalle completo: videojuego, modalidad, dirección o enlace,
     requisitos, inscripción y galería de fotos en `event-detail.html`;
     `/eventos/{id}` sigue privado.
-  - Pendiente de decidir: una o varias fotos por evento, e ilustraciones SVG
-    propias o fotos de un banco libre.
+  - Decidido el 2 de noviembre de 2026: una imagen por evento (`imageUrl`),
+    con ilustraciones SVG propias en `static/images/events/`, sin licencias
+    de terceros.
 - [ ] **Parte 4 — APIs públicas y privadas.** Requisitos 2, 4, 5 y 6.
   - [ ] `GET /api/home` y `GET /api/events` públicos, con DTO de resumen.
   - [ ] `GET /api/events/{id}` privado con JWT, con DTO de detalle.

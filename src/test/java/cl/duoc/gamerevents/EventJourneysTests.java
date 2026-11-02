@@ -24,10 +24,33 @@ class EventJourneysTests {
 
     private void event(String title, String category, String location, LocalDate date, boolean featured) {
         jdbc.update(
-                "insert into gamer_events(title,category,location,address,starts_at,description,organizers,services,exhibitors,featured) values(?,?,?,?,?,?,?,?,?,?)",
-                title, category, location, "Calle gamer 123", date.atTime(18, 30), "Descripción privada del encuentro",
-                "Equipo Gamer", "Estacionamiento, locomoción colectiva, comidas y alojamiento", "Estudio Indie",
+                "insert into gamer_events(title,category,game,country,modality,location,address,starts_at,description,"
+                        + "organizers,services,exhibitors,requirements,registration_info,image_url,featured) "
+                        + "values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                title, category, "Valorant", "Chile", "PRESENCIAL", location, "Calle gamer 123", date.atTime(18, 30),
+                "Descripción privada del encuentro", "Equipo Gamer",
+                "Estacionamiento, locomoción colectiva, comidas y alojamiento", "Estudio Indie",
+                "Mayores de 16 años", "Inscripción gratuita en el recinto", "/images/events/nexus-arena.svg",
                 featured);
+    }
+
+    private void onlineEvent(String title, LocalDate date) {
+        jdbc.update(
+                "insert into gamer_events(title,category,game,country,modality,access_url,starts_at,description,"
+                        + "organizers,services,exhibitors,requirements,registration_info,image_url,featured) "
+                        + "values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                title, "Esports", "Rocket League", "México", "ONLINE", "https://eventos.example.test/liga",
+                date.atTime(20, 0), "Descripción privada online", "Liga Online", "Transmisión en vivo",
+                "Equipos invitados", "Equipos de 3 jugadores", "Inscripción previa por formulario",
+                "/images/events/liga-rocket.svg", true);
+    }
+
+    @Test
+    void onlineEventCardShowsOnlineInsteadOfEmptyCity() throws Exception {
+        onlineEvent("Liga online de prueba", LocalDate.now().plusDays(3));
+        mvc.perform(get("/")).andExpect(status().isOk())
+                .andExpect(content().string(containsString("Liga online de prueba")))
+                .andExpect(content().string(containsString("Online")));
     }
 
     @Test
