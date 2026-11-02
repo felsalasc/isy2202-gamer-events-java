@@ -36,6 +36,7 @@ public class SecurityConfig {
                 http.securityMatcher("/api/**")
                                 .authorizeHttpRequests(authorize -> authorize
                                                 .requestMatchers(HttpMethod.POST, Constants.LOGIN_URL).permitAll()
+                                                .requestMatchers(HttpMethod.GET, "/api/home", "/api/events").permitAll()
                                                 .anyRequest().authenticated())
                                 .sessionManagement(session -> session
                                                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -60,7 +61,8 @@ public class SecurityConfig {
         SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
                 http.authorizeHttpRequests(authorize -> authorize
                                 .dispatcherTypeMatchers(DispatcherType.ERROR).permitAll()
-                                // "/eventos" es la búsqueda pública; "/eventos/{id}" (detalle) no calza y queda privado.
+                                // "/eventos" es la búsqueda pública; "/eventos/{id}" (detalle) no calza y queda
+                                // privado.
                                 .requestMatchers(HttpMethod.GET, "/", "/home", "/recetas", "/eventos", "/login",
                                                 "/registro", "/css/**", "/images/**")
                                 .permitAll()
@@ -70,13 +72,9 @@ public class SecurityConfig {
                                                 .defaultSuccessUrl("/perfil", true).failureUrl("/login?error")
                                                 .permitAll())
                                 .logout(logout -> logout.logoutUrl("/logout").logoutSuccessUrl("/login?logout"));
-                // CSRF remains enabled for registration, login, profile updates and POST
-                // logout.
                 return http.build();
         }
 
-        // Spring Boot registra todo Filter @Component como filtro global; el JWT solo
-        // debe actuar dentro de la cadena de la API.
         @Bean
         FilterRegistrationBean<JWTAuthorizationFilter> jwtAuthorizationFilterRegistration(
                         JWTAuthorizationFilter filter) {

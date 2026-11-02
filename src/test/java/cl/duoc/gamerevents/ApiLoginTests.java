@@ -101,14 +101,16 @@ class ApiLoginTests {
 
     @Test
     void blankFieldsGet400() throws Exception {
-        login("{}").andExpect(status().isBadRequest());
-        login(body("", "")).andExpect(status().isBadRequest());
+        login("{}").andExpect(status().isBadRequest()).andExpect(jsonPath("$.error").value("Solicitud inválida."));
+        login(body("", "")).andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value("Solicitud inválida."));
     }
 
     @Test
     void missingBodyGets400() throws Exception {
         mvc.perform(post(Constants.LOGIN_URL).contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value("Solicitud inválida."));
     }
 
     @Test

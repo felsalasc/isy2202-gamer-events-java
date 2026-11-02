@@ -16,7 +16,6 @@ public class EventController {
         this.events = events;
     }
 
-    /** [Pública] Búsqueda de eventos. Los parámetros de la URL llenan el {@link EventFilter}. */
     @GetMapping
     public String list(@ModelAttribute("filter") EventFilter filter, Model model) {
         model.addAttribute("events", events.search(filter));
@@ -28,7 +27,6 @@ public class EventController {
         return "events";
     }
 
-    /** [Privada] Detalle de eventos. */
     @GetMapping("/{id}")
     public String detail(@PathVariable long id, Model model) {
         model.addAttribute("event", events.detail(id));
