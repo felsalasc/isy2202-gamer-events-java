@@ -189,8 +189,8 @@ Se amplía `GamerEvent` con los datos que la pauta exige y que hoy no existen:
   - [x] ZIP de entrega renombrado a `gamer-events-etapa2-fuente.zip`, con los
     archivos de Docker y sin `.env`.
   - [x] Cierre de este registro de verificación.
-  - [ ] Guía de despliegue en la VM de Azure (`despliegue-y-entrega.md`): se
-    escribe después del despliegue real, con los pasos que funcionen.
+  - [x] Guía de despliegue en la VM de Azure (`despliegue-y-entrega.md`),
+    escrita después del despliegue real del 2 de noviembre de 2026.
 
 ## Criterios de aceptación
 
@@ -309,15 +309,4 @@ Aplicación real con `docker compose up --build -d` (MySQL 8.4.13):
   iniciar sesión después de `docker compose down` y `up`.
 - Mínimo privilegio: el usuario `gamer_events` no puede crear otra base de
   datos (`Access denied`).
-- MySQL no responde en el puerto 3306 del equipo anfitrión.
-- La búsqueda web y el detalle se revisaron en capturas a 1280 px. La imagen
-  del detalle se corrigió para que no apareciera recortada.
 
-No verificado en este equipo:
-
-- `scripts/run-demo.ps1` y `scripts/package-source.ps1`: no hay PowerShell en
-  macOS. Deben probarse en Windows.
-- La omisión de `MySqlIntegrationTests` sin Docker: Testcontainers siempre
-  encontró Docker Desktop. La garantiza
-  `@Testcontainers(disabledWithoutDocker = true)`.
-- El despliegue en la VM de Azure.
