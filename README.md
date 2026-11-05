@@ -5,7 +5,7 @@ cuenta y personalizar un perfil. Desarrollada con Java y Spring Boot para la
 asignatura **Seguridad y Calidad en el Desarrollo de Software (ISY2202)** de
 **Duoc UC**.
 
-**Repositorio:** [isy2202-gamer-events-java](https://github.com/felsalasc/isy2202-gamer-events-java) · **Actividad:** Etapa 2
+**Repositorio:** [isy2202-gamer-events-java](https://github.com/felsalasc/isy2202-gamer-events-java) · **Actividad:** Etapa 3
 
 ## Funcionalidades
 
@@ -16,8 +16,8 @@ asignatura **Seguridad y Calidad en el Desarrollo de Software (ISY2202)** de
 - **Registro, inicio de sesión y perfil:** contraseña almacenada con BCrypt, perfil privado editable y cierre de sesión protegido con CSRF.
 - **Interfaz adaptable:** HTML5, CSS3 y plantillas Thymeleaf.
 
-El perfil de demostración contiene usuarios, eventos y marcas ficticios,
-identificados como tales en la interfaz.
+Los datos iniciales (usuarios, eventos y marcas) son ficticios, están
+identificados como tales en la interfaz y se cargan con los scripts SQL de `db/`.
 
 ## Tecnologías
 
@@ -71,14 +71,14 @@ aplica al crear su volumen de datos.
 **macOS y Linux:**
 
 ```bash
-./scripts/run-demo.sh
+./scripts/run.sh
 ```
 
 **Windows PowerShell:**
 
 ```powershell
 Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass   # solo si PowerShell bloquea el script
-./scripts/run-demo.ps1
+./scripts/run.ps1
 ```
 
 Los scripts comprueban el `.env` y Docker, ejecutan `docker compose up --build -d`
@@ -96,11 +96,15 @@ La primera vez descarga las imágenes y las dependencias, y tarda unos minutos.
 Abre [http://localhost/recetas](http://localhost/recetas). También están
 disponibles `/` y `/home`.
 
-| Cuenta de prueba | Contraseña |
+| Cuenta de prueba | Rol |
 | --- | --- |
-| `gamer1@example.test` | Valor de `GAMER_DEMO_PASSWORD` en `.env` |
-| `gamer2@example.test` | Valor de `GAMER_DEMO_PASSWORD` en `.env` |
-| `gamer3@example.test` | Valor de `GAMER_DEMO_PASSWORD` en `.env` |
+| `gamer1@example.test` | USER |
+| `gamer2@example.test` | USER |
+| `gamer3@example.test` | USER |
+| `admin@example.test` | ADMIN |
+
+Las contraseñas no están en el repositorio: se entregan en el informe. En
+`db/02-data.sql` solo se guardan sus hashes BCrypt.
 
 ### Comandos útiles
 
@@ -111,14 +115,10 @@ docker compose down                     # detiene y elimina los contenedores; lo
 docker compose up --build -d            # vuelve a construir tras cambiar el código
 ```
 
-> **Advertencia:** `docker compose down -v` elimina también el volumen de MySQL y
-> **borra todos los datos**. No lo uses en el servidor.
-
 ## Variables de entorno
 
 | Variable | Uso | Requisito |
 | --- | --- | --- |
-| `GAMER_DEMO_PASSWORD` | Contraseña de las tres cuentas demo | Entre 12 caracteres y 72 bytes |
 | `JWT_SECRET` | Firma de los tokens JWT (HS256) | Al menos 32 bytes; sin él la aplicación no arranca |
 | `DB_NAME` | Nombre de la base de datos | Por defecto `gamer_events` |
 | `DB_USERNAME` | Usuario de MySQL de la aplicación | Por defecto `gamer_events` |
@@ -166,7 +166,7 @@ se combinan:
 ```bash
 curl -X POST http://localhost/api/auth/login \
   -H "Content-Type: application/json" \
-  -d '{"email":"gamer1@example.test","password":"TU_GAMER_DEMO_PASSWORD"}'
+  -d '{"email":"gamer1@example.test","password":"TU_CONTRASEÑA"}'
 ```
 
 ```json
@@ -221,17 +221,19 @@ Todos los errores de la API tienen el formato `{"error": "..."}`:
 
 - Los datos se guardan en un **volumen con nombre** de Docker: sobreviven a
   `docker compose down`, a reinicios y a la reconstrucción de los contenedores.
-- El esquema se crea y actualiza al arrancar (`ddl-auto=update`).
-- El perfil `demo`, activo en Docker Compose, crea tres cuentas, seis eventos
-  (presenciales y online, de distintos países) y tres banners la primera vez. No
-  duplica datos al reiniciar ni cambia las contraseñas de cuentas existentes.
+- MySQL ejecuta `db/01-schema.sql` (creación) y `db/02-data.sql` (inserción de
+  4 cuentas, seis eventos y tres banners) la primera vez que se crea el volumen.
+  Para volver a cargarlos: `docker compose down -v` y `docker compose up -d`
+  (se pierden los datos).
+- La aplicación no modifica el esquema: arranca con `ddl-auto=validate` y se
+  detiene si las tablas no calzan con las entidades.
 - La aplicación y MySQL usan la zona horaria `America/Santiago`.
 
 ## Arquitectura
 
 ```text
 src/main/java/cl/duoc/gamerevents/
-├── config/          # Seguridad (cadenas web y API), JWT y datos demo
+├── config/          # Seguridad (cadenas web y API) y JWT
 ├── controller/      # Controladores web (Thymeleaf) y REST (/api)
 ├── exception/       # Excepciones y respuestas de error JSON de la API
 ├── model/           # Entidades JPA, formularios y DTO de la API
@@ -286,7 +288,8 @@ Los resultados de cada ejecución quedan en `target/surefire-reports/`.
 
 | Síntoma | Causa y solución |
 | --- | --- |
-| La aplicación no muestra eventos | Falta el perfil `demo`. Docker Compose y `run-demo` lo activan. Si ejecutas de otra forma, usa `SPRING_PROFILES_ACTIVE=demo` |
+| La aplicación no muestra eventos o no acepta las cuentas de prueba | El volumen de MySQL se creó antes de los scripts de `db/`. Recréalo con `docker compose down -v` y `docker compose up -d` (se pierden los datos) |
+| `Schema-validation: missing column` al arrancar | Las tablas no calzan con las entidades. Recrea el volumen para que MySQL ejecute `db/01-schema.sql` |
 | `Access denied for user 'gamer_events'` tras cambiar `DB_PASSWORD` | MySQL conserva la contraseña con la que se creó el volumen. Restaura el valor anterior en `.env`, o borra el volumen con `docker compose down -v` (se pierden los datos) |
 | `JWT_SECRET debe tener al menos 32 bytes` | Falta `JWT_SECRET` en `.env` o es demasiado corto |
 | Windows: *running scripts is disabled* | Ejecuta `Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass` en esa ventana |
@@ -311,6 +314,7 @@ artefactos de compilación.
 - [Configuración inicial y verificación (Etapa 1)](docs/etapa-1.md)
 - [Etapas funcionales y pruebas (Etapa 1)](docs/etapas-funcionales.md)
 - [APIs con JWT, MySQL y funcionalidades del caso (Etapa 2)](docs/etapa-2-auth-jwt.md)
+- [Seguridad OWASP Top 10 y análisis con ZAP Proxy (Etapa 3)](docs/etapa-3-owasp-zap.md)
 - [Despliegue y entrega](docs/despliegue-y-entrega.md)
 
 ## Referencias

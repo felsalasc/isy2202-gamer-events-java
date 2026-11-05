@@ -5,7 +5,8 @@ import jakarta.persistence.*;
 @Entity
 @Table(name = "gamer_users", uniqueConstraints = @UniqueConstraint(name = "uk_gamer_email", columnNames = "email"))
 public class GamerUser {
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Column(nullable = false, length = 80)
     private String name;
@@ -21,13 +22,24 @@ public class GamerUser {
     private String games = "";
     @Column(nullable = false)
     private boolean notifications;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 10)
+    private Role role = Role.USER;
 
-    protected GamerUser() { }
+    protected GamerUser() {
+    }
+
     public GamerUser(String name, String email, String passwordHash) {
+        this(name, email, passwordHash, Role.USER);
+    }
+
+    public GamerUser(String name, String email, String passwordHash, Role role) {
         this.name = name;
         this.email = email;
         this.passwordHash = passwordHash;
+        this.role = role == null ? Role.USER : role;
     }
+
     public void updateProfile(String name, String nickname, String avatar, String games, boolean notifications) {
         this.name = name;
         this.nickname = nickname;
@@ -35,12 +47,40 @@ public class GamerUser {
         this.games = games;
         this.notifications = notifications;
     }
-    public Long getId() { return id; }
-    public String getName() { return name; }
-    public String getEmail() { return email; }
-    public String getPasswordHash() { return passwordHash; }
-    public String getNickname() { return nickname; }
-    public String getAvatar() { return avatar; }
-    public String getGames() { return games; }
-    public boolean isNotifications() { return notifications; }
+
+    public Long getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public String getPasswordHash() {
+        return passwordHash;
+    }
+
+    public String getNickname() {
+        return nickname;
+    }
+
+    public String getAvatar() {
+        return avatar;
+    }
+
+    public String getGames() {
+        return games;
+    }
+
+    public boolean isNotifications() {
+        return notifications;
+    }
+
+    public Role getRole() {
+        return role;
+    }
 }

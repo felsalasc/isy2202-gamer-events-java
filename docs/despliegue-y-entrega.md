@@ -73,12 +73,19 @@ curl -s http://$IP/api/home | head -c 200; echo                    # API públic
 curl -s -o /dev/null -w "%{http_code}\n" http://$IP/api/events/1    # API privada sin token: 401
 ```
 
-Cuentas de prueba: `gamer1@example.test`, `gamer2@example.test` y
-`gamer3@example.test`. La contraseña es la de `DEMO_PASSWORD` en el script.
-Para confirmarla en la VM:
+Cuentas de prueba: `gamer1@example.test`, `gamer2@example.test`,
+`gamer3@example.test` (USER) y `admin@example.test` (ADMIN). MySQL las crea con
+`db/02-data.sql` la primera vez que se crea el volumen `mysql-data`. Las
+contraseñas se entregan en el informe; el repositorio solo tiene sus hashes.
+
+En una VM que ya tenía la versión anterior, el volumen existe y los scripts no
+se ejecutan. Hay que recrearlo una vez (se borran los datos):
 
 ```bash
-sudo grep GAMER_DEMO_PASSWORD /opt/isy2202-gamer-events-java/.env
+cd /opt/isy2202-gamer-events-java
+sudo git pull --ff-only
+sudo docker compose down -v
+sudo docker compose up -d --build
 ```
 
 ## 3. Diagnóstico
@@ -208,8 +215,8 @@ la aplicación fallaría con `Access denied`.
 - SSH restringido a tu IP. Solo el puerto 80 queda abierto a Internet.
 - MySQL no publica puertos. La aplicación usa un usuario limitado a su base de
   datos, no `root`.
-- `.env` tiene permisos `600` y no se comparte. Para evaluar solo hace falta la
-  contraseña demo.
+- `.env` tiene permisos `600` y no se comparte. Para evaluar solo hacen falta
+  las cuentas de prueba del informe.
 - Los contenedores se reinician solos (`restart: unless-stopped`), también
   después de un reinicio de la VM.
 - La aplicación se sirve por HTTP, sin cifrado, porque así lo pide la actividad
@@ -234,7 +241,7 @@ artefactos de compilación.
 | --- | --- |
 | Spring Boot, Web, Security, Data JPA y MySQL Driver | `pom.xml`; MySQL 8.4 en `docker-compose.yml` |
 | Protección de URLs: solo las APIs indicadas son públicas | `SecurityConfig` (cadenas web y `/api/**`); `ApiSecurityTests`, `EventApiPublicTests` y `EventApiDetailTests` |
-| API de login con 3 usuarios que retorna un JWT | `POST /api/auth/login`; `ApiLoginTests` y `DemoDataTests` |
+| API de login con 3 usuarios que retorna un JWT | `POST /api/auth/login`; `ApiLoginTests` y `SeedDataMySqlTests` |
 | Acceso a las APIs privadas con el token | `GET /api/events/{id}`; `EventApiDetailTests` (login → token → detalle) |
 | Datos desde la base de datos | MySQL en Docker; `MySqlIntegrationTests` (Testcontainers) |
 | [Pública] Inicio | `/`, `/recetas` y `GET /api/home`; `HomeIntegrationTests` y `EventApiPublicTests` |

@@ -18,8 +18,7 @@ COPY --from=build /app/target/gamer-events-0.0.1-SNAPSHOT.jar app.jar
 
 # Configuración por defecto para entorno Docker
 ENV SERVER_ADDRESS=0.0.0.0 \
-    SERVER_PORT=8080 \
-    SPRING_PROFILES_ACTIVE=demo
+    SERVER_PORT=8080
 
 EXPOSE 8080
 

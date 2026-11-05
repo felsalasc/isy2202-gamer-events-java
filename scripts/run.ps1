@@ -22,8 +22,7 @@ try {
             Invoke-WebRequest -Uri 'http://localhost/api/home' -UseBasicParsing -TimeoutSec 3 | Out-Null
             Write-Host ''
             Write-Host 'Gamer Events está listo en http://localhost'
-            Write-Host 'Usuarios: gamer1@example.test, gamer2@example.test, gamer3@example.test'
-            Write-Host 'Contraseña: el valor de GAMER_DEMO_PASSWORD en tu .env'
+            Write-Host 'Usuarios y contraseñas de prueba: ver el informe de entrega'
             Write-Host 'Ver el log: docker compose logs -f gamer-events   |   Detener: docker compose down'
             exit 0
         } catch {
