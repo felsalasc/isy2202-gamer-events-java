@@ -6,8 +6,7 @@ import javax.crypto.SecretKey;
 import io.jsonwebtoken.Jwts;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.AuthorityUtils;
+import cl.duoc.gamerevents.model.Role;
 import static cl.duoc.gamerevents.config.Constants.*;
 
 /** Genera los tokens de la API. La aplicación no arranca si {@code JWT_SECRET} falta o es corto. */
@@ -21,9 +20,9 @@ public class JWTAuthenticationConfig {
 
     public SecretKey getSigningKey() { return signingKey; }
 
-    public String getJWTToken(String username) {
-        List<String> authorities = AuthorityUtils.commaSeparatedStringToAuthorityList("ROLE_USER").stream()
-                .map(GrantedAuthority::getAuthority).toList();
+    /** El claim {@code authorities} lleva el rol real del usuario: {@code ROLE_USER} o {@code ROLE_ADMIN}. */
+    public String getJWTToken(String username, Role role) {
+        List<String> authorities = List.of("ROLE_" + role.name());
         long now = System.currentTimeMillis();
         return Jwts.builder()
                 .subject(username)

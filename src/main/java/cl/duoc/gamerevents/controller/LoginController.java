@@ -30,6 +30,6 @@ public class LoginController {
     public LoginResponse login(@Valid @RequestBody LoginRequest request) {
         GamerUser user = users.authenticate(request.email(), request.password())
                 .orElseThrow(InvalidCredentialsException::new);
-        return new LoginResponse(jwtAuthenticationConfig.getJWTToken(user.getEmail()));
+        return new LoginResponse(jwtAuthenticationConfig.getJWTToken(user.getEmail(), user.getRole()));
     }
 }

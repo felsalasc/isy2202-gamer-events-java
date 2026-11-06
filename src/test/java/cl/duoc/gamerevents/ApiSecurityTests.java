@@ -12,6 +12,7 @@ import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.test.web.servlet.MockMvc;
 import cl.duoc.gamerevents.config.JWTAuthenticationConfig;
+import cl.duoc.gamerevents.model.Role;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.containsString;
@@ -42,7 +43,7 @@ class ApiSecurityTests {
 
     @Test
     void apiWithTamperedTokenGets401() throws Exception {
-        String token = jwt.getJWTToken("gamer1@example.test");
+        String token = jwt.getJWTToken("gamer1@example.test", Role.USER);
         String tampered = token.substring(0, token.length() - 2) + (token.endsWith("AA") ? "BB" : "AA");
         mvc.perform(get(PRIVATE_API).header("Authorization", "Bearer " + tampered))
                 .andExpect(status().isUnauthorized())
@@ -58,7 +59,7 @@ class ApiSecurityTests {
     @Test
     void apiWithValidTokenPassesSecurity() throws Exception {
         // Aún no hay endpoints: superar la seguridad se ve como 404, no como 401.
-        mvc.perform(get(PRIVATE_API).header("Authorization", "Bearer " + jwt.getJWTToken("gamer1@example.test")))
+        mvc.perform(get(PRIVATE_API).header("Authorization", "Bearer " + jwt.getJWTToken("gamer1@example.test", Role.USER)))
                 .andExpect(status().isNotFound());
     }
 
@@ -82,13 +83,13 @@ class ApiSecurityTests {
 
     @Test
     void apiPostWithoutCsrfIsNotRejectedAsForbidden() throws Exception {
-        mvc.perform(post(PRIVATE_API).header("Authorization", "Bearer " + jwt.getJWTToken("gamer1@example.test")))
+        mvc.perform(post(PRIVATE_API).header("Authorization", "Bearer " + jwt.getJWTToken("gamer1@example.test", Role.USER)))
                 .andExpect(result -> assertThat(result.getResponse().getStatus()).isNotEqualTo(403));
     }
 
     @Test
     void apiDoesNotCreateSession() throws Exception {
-        var result = mvc.perform(get(PRIVATE_API).header("Authorization", "Bearer " + jwt.getJWTToken("gamer1@example.test")))
+        var result = mvc.perform(get(PRIVATE_API).header("Authorization", "Bearer " + jwt.getJWTToken("gamer1@example.test", Role.USER)))
                 .andReturn();
         assertThat(result.getRequest().getSession(false)).isNull();
     }

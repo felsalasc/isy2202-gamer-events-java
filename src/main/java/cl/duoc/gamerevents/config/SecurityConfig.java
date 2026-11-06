@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -20,6 +21,7 @@ import cl.duoc.gamerevents.service.UserService;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
+@EnableMethodSecurity
 public class SecurityConfig {
 
         /**
@@ -37,6 +39,8 @@ public class SecurityConfig {
                                 .authorizeHttpRequests(authorize -> authorize
                                                 .requestMatchers(HttpMethod.POST, Constants.LOGIN_URL).permitAll()
                                                 .requestMatchers(HttpMethod.GET, "/api/home", "/api/events").permitAll()
+                                                // Capa 1 de A01. La capa 2 es @PreAuthorize en UserService.listUsers().
+                                                .requestMatchers("/api/admin/**").hasRole("ADMIN")
                                                 .anyRequest().authenticated())
                                 .sessionManagement(session -> session
                                                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -45,9 +49,11 @@ public class SecurityConfig {
                                 .httpBasic(AbstractHttpConfigurer::disable)
                                 .logout(AbstractHttpConfigurer::disable)
                                 .requestCache(AbstractHttpConfigurer::disable)
-                                .exceptionHandling(exceptions -> exceptions.authenticationEntryPoint((request, response,
-                                                exception) -> JWTAuthorizationFilter.writeUnauthorized(response,
-                                                                "Se requiere un token Bearer.")))
+                                .exceptionHandling(exceptions -> exceptions
+                                                .authenticationEntryPoint((request, response, exception) -> JWTAuthorizationFilter
+                                                                .writeUnauthorized(response, "Se requiere un token Bearer."))
+                                                .accessDeniedHandler((request, response, exception) -> JWTAuthorizationFilter
+                                                                .writeForbidden(response, "No tienes permiso para este recurso.")))
                                 .addFilterBefore(jwtAuthorizationFilter, UsernamePasswordAuthenticationFilter.class);
                 return http.build();
         }
@@ -67,6 +73,7 @@ public class SecurityConfig {
                                                 "/registro", "/css/**", "/images/**")
                                 .permitAll()
                                 .requestMatchers(HttpMethod.POST, "/registro").permitAll()
+                                .requestMatchers("/admin/**").hasRole("ADMIN")
                                 .anyRequest().authenticated())
                                 .formLogin(form -> form.loginPage("/login").usernameParameter("email")
                                                 .defaultSuccessUrl("/perfil", true).failureUrl("/login?error")
@@ -92,7 +99,7 @@ public class SecurityConfig {
         UserDetailsService userDetailsService(GamerUserRepository users) {
                 return email -> users.findByEmail(UserService.normalize(email))
                                 .map(user -> User.withUsername(user.getEmail()).password(user.getPasswordHash())
-                                                .roles("USER").build())
+                                                .roles(user.getRole().name()).build())
                                 .orElseThrow(() -> new UsernameNotFoundException("Credenciales inválidas"));
         }
 }

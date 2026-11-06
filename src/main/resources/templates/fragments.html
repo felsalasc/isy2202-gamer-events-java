@@ -15,6 +15,7 @@
             <a th:href="@{/recetas}">Inicio</a>
             <a th:href="@{/eventos}">Eventos</a>
             <a th:if="${signedIn}" th:href="@{/perfil}">Mi perfil</a>
+            <a th:if="${isAdmin}" th:href="@{/admin}">Administración</a>
             <a th:unless="${signedIn}" th:href="@{/login}">Ingresar</a>
             <a class="nav-register" th:unless="${signedIn}" th:href="@{/registro}">Crear cuenta</a>
             <form th:if="${signedIn}" th:action="@{/logout}" method="post" class="logout-form">

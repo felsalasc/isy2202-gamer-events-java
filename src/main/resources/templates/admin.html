@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments :: head('Administración')}"></head>
+
+<body>
+    <header th:replace="~{fragments :: header}"></header>
+    <main id="contenido" class="container page-main">
+        <p class="eyebrow">Solo administradores</p>
+        <h1 class="page-title">Usuarios registrados</h1>
+        <section class="panel">
+            <p class="muted">Listado de solo lectura. Las contraseñas no se muestran ni salen del servidor.</p>
+            <div class="table-wrap">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th scope="col">Nombre</th>
+                            <th scope="col">Correo</th>
+                            <th scope="col">Rol</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="u : ${users}">
+                            <td th:text="${u.name}">Nombre</td>
+                            <td th:text="${u.email}">correo@example.test</td>
+                            <td><span class="role-badge" th:classappend="${u.role.name() == 'ADMIN'} ? 'role-admin'"
+                                    th:text="${u.role}">USER</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+    <footer th:replace="~{fragments :: footer}"></footer>
+</body>
+
+</html>
