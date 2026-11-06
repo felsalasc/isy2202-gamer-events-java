@@ -11,8 +11,6 @@ exec > >(tee -a /var/log/gamer-events-setup.log) 2>&1
 
 REPO_URL="https://github.com/felsalasc/isy2202-gamer-events-java.git"
 APP_DIR="/opt/isy2202-gamer-events-java"
-# Contrasena de las 3 cuentas demo (ficticias). Minimo 12 caracteres y sin el caracter "$".
-DEMO_PASSWORD="EvaluacionDuoc2026!"
 
 echo "== $(date) inicio de la configuracion"
 
@@ -46,7 +44,6 @@ cd "$APP_DIR"
 if [ ! -f .env ]; then
     umask 077   # .env legible solo por root
     cat > .env <<EOF
-GAMER_DEMO_PASSWORD=${DEMO_PASSWORD}
 JWT_SECRET=$(openssl rand -base64 48 | tr -d '\n')
 DB_NAME=gamer_events
 DB_USERNAME=gamer_events

@@ -24,8 +24,7 @@ for _ in $(seq 1 60); do
     if curl -fs -o /dev/null http://localhost/api/home; then
         echo
         echo "Gamer Events está listo en http://localhost"
-        echo "Usuarios: gamer1@example.test, gamer2@example.test, gamer3@example.test"
-        echo "Contraseña: el valor de GAMER_DEMO_PASSWORD en tu .env"
+        echo "Usuarios y contraseñas de prueba: ver el informe de entrega"
         echo "Ver el log: docker compose logs -f gamer-events   |   Detener: docker compose down"
         exit 0
     fi
