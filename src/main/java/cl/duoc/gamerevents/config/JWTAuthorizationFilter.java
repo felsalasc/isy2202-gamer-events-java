@@ -76,10 +76,19 @@ public class JWTAuthorizationFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
-    /** Respuesta 401 común de la API: JSON en UTF-8 y {@code WWW-Authenticate: Bearer}. */
+    /** Respuesta 401 común de la API: no se sabe quién es. Incluye {@code WWW-Authenticate: Bearer}. */
     public static void writeUnauthorized(HttpServletResponse response, String message) throws IOException {
-        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.setHeader("WWW-Authenticate", "Bearer");
+        writeJsonError(response, HttpServletResponse.SC_UNAUTHORIZED, message);
+    }
+
+    /** Respuesta 403 común de la API: se sabe quién es, pero su rol no tiene permiso. */
+    public static void writeForbidden(HttpServletResponse response, String message) throws IOException {
+        writeJsonError(response, HttpServletResponse.SC_FORBIDDEN, message);
+    }
+
+    private static void writeJsonError(HttpServletResponse response, int status, String message) throws IOException {
+        response.setStatus(status);
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setCharacterEncoding(StandardCharsets.UTF_8.name());
         response.getWriter().write("{\"error\":\"" + message + "\"}");

@@ -27,6 +27,7 @@ import org.springframework.security.test.context.support.WithMockUser;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.not;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
@@ -34,6 +35,7 @@ import static org.springframework.security.test.web.servlet.response.SecurityMoc
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
@@ -121,6 +123,36 @@ class AdminRoleTests {
     void serviceRejectsCallsWithoutAuthentication() {
         assertThatThrownBy(() -> userService.listUsers())
                 .isInstanceOf(AuthenticationCredentialsNotFoundException.class);
+    }
+
+    // --- 2.4 API GET /api/admin/users: 401 sin token, 403 USER, 200 ADMIN ---
+
+    private static final String ADMIN_API = "/api/admin/users";
+
+    @Test
+    void adminApiWithoutTokenGets401Json() throws Exception {
+        mvc.perform(get(ADMIN_API))
+                .andExpect(status().isUnauthorized())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON));
+    }
+
+    @Test
+    void adminApiWithUserTokenGets403Json() throws Exception {
+        mvc.perform(get(ADMIN_API).header("Authorization", "Bearer " + jwt.getJWTToken("gamer@example.test", Role.USER)))
+                .andExpect(status().isForbidden())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.error").value(containsString("permiso")));
+    }
+
+    @Test
+    void adminApiWithAdminTokenListsUsersWithoutPasswordHashes() throws Exception {
+        String email = createUser(Role.USER);
+        String hash = users.findByEmail(email).orElseThrow().getPasswordHash();
+        mvc.perform(get(ADMIN_API).header("Authorization", "Bearer " + jwt.getJWTToken("admin@example.test", Role.ADMIN)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[?(@.email == '" + email + "')].role").value(hasItem("USER")))
+                .andExpect(jsonPath("$[0].passwordHash").doesNotExist())
+                .andExpect(content().string(not(containsString(hash))));
     }
 
     @Test

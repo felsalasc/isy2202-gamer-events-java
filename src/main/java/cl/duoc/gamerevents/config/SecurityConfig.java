@@ -39,6 +39,8 @@ public class SecurityConfig {
                                 .authorizeHttpRequests(authorize -> authorize
                                                 .requestMatchers(HttpMethod.POST, Constants.LOGIN_URL).permitAll()
                                                 .requestMatchers(HttpMethod.GET, "/api/home", "/api/events").permitAll()
+                                                // Capa 1 de A01. La capa 2 es @PreAuthorize en UserService.listUsers().
+                                                .requestMatchers("/api/admin/**").hasRole("ADMIN")
                                                 .anyRequest().authenticated())
                                 .sessionManagement(session -> session
                                                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -47,9 +49,11 @@ public class SecurityConfig {
                                 .httpBasic(AbstractHttpConfigurer::disable)
                                 .logout(AbstractHttpConfigurer::disable)
                                 .requestCache(AbstractHttpConfigurer::disable)
-                                .exceptionHandling(exceptions -> exceptions.authenticationEntryPoint((request, response,
-                                                exception) -> JWTAuthorizationFilter.writeUnauthorized(response,
-                                                                "Se requiere un token Bearer.")))
+                                .exceptionHandling(exceptions -> exceptions
+                                                .authenticationEntryPoint((request, response, exception) -> JWTAuthorizationFilter
+                                                                .writeUnauthorized(response, "Se requiere un token Bearer."))
+                                                .accessDeniedHandler((request, response, exception) -> JWTAuthorizationFilter
+                                                                .writeForbidden(response, "No tienes permiso para este recurso.")))
                                 .addFilterBefore(jwtAuthorizationFilter, UsernamePasswordAuthenticationFilter.class);
                 return http.build();
         }
