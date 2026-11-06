@@ -155,6 +155,31 @@ class AdminRoleTests {
                 .andExpect(content().string(not(containsString(hash))));
     }
 
+    // --- 2.5 Menú: el enlace es comodidad, no seguridad (la seguridad son las dos capas) ---
+
+    private static final String ADMIN_LINK = "href=\"/admin\"";
+
+    @Test
+    void anonymousDoesNotSeeAdminLink() throws Exception {
+        mvc.perform(get("/eventos"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(not(containsString(ADMIN_LINK))));
+    }
+
+    @Test
+    void userDoesNotSeeAdminLink() throws Exception {
+        mvc.perform(get("/eventos").with(user("gamer@example.test").roles("USER")))
+                .andExpect(status().isOk())
+                .andExpect(content().string(not(containsString(ADMIN_LINK))));
+    }
+
+    @Test
+    void adminSeesAdminLink() throws Exception {
+        mvc.perform(get("/eventos").with(user("admin@example.test").roles("ADMIN")))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString(ADMIN_LINK)));
+    }
+
     @Test
     @WithMockUser(roles = "ADMIN")
     void serviceListsUsersForAdmin() {
