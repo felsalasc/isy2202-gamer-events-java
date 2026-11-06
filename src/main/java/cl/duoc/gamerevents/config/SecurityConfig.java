@@ -92,7 +92,7 @@ public class SecurityConfig {
         UserDetailsService userDetailsService(GamerUserRepository users) {
                 return email -> users.findByEmail(UserService.normalize(email))
                                 .map(user -> User.withUsername(user.getEmail()).password(user.getPasswordHash())
-                                                .roles("USER").build())
+                                                .roles(user.getRole().name()).build())
                                 .orElseThrow(() -> new UsernameNotFoundException("Credenciales inválidas"));
         }
 }
