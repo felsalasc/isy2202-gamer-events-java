@@ -1,8 +1,11 @@
 package cl.duoc.gamerevents.service;
 
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
+import org.springframework.data.domain.Sort;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -41,6 +44,15 @@ public class UserService {
     public GamerUser findByEmail(String email) {
         return users.findByEmail(normalize(email))
                 .orElseThrow(() -> new UsernameNotFoundException("Cuenta no disponible"));
+    }
+
+    /**
+     * Listado para la administración, solo ADMIN. Protege la acción, no la URL:
+     * cubre /admin, /api/admin/users y cualquier entrada futura que la use.
+     */
+    @PreAuthorize("hasRole('ADMIN')")
+    public List<UserSummary> listUsers() {
+        return users.findAll(Sort.by("name")).stream().map(UserSummary::from).toList();
     }
 
     public static String normalize(String email) {

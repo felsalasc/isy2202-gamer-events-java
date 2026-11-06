@@ -18,12 +18,25 @@ import cl.duoc.gamerevents.config.Constants;
 import cl.duoc.gamerevents.config.JWTAuthenticationConfig;
 import cl.duoc.gamerevents.model.GamerUser;
 import cl.duoc.gamerevents.model.Role;
+import cl.duoc.gamerevents.model.UserSummary;
 import cl.duoc.gamerevents.repository.GamerUserRepository;
+import cl.duoc.gamerevents.service.UserService;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
+import org.springframework.security.test.context.support.WithMockUser;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.not;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.authenticated;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
 /** Fase 2 (A01): el rol guardado en la BD es el que usa Spring Security. */
 @SpringBootTest
@@ -35,6 +48,7 @@ class AdminRoleTests {
     @Autowired GamerUserRepository users;
     @Autowired PasswordEncoder encoder;
     @Autowired JWTAuthenticationConfig jwt;
+    @Autowired UserService userService;
 
     private String createUser(Role role) {
         String email = role.name().toLowerCase() + "-" + UUID.randomUUID() + "@example.test";
@@ -67,5 +81,52 @@ class AdminRoleTests {
         String token = JsonPath.read(response, "$.token");
         Claims claims = Jwts.parser().verifyWith(jwt.getSigningKey()).build().parseSignedClaims(token).getPayload();
         assertThat(claims.get(Constants.AUTHORITIES_CLAIM, List.class)).containsExactly("ROLE_" + role.name());
+    }
+
+    // --- 2.3 Capa 1: regla de URL en la cadena web ---
+
+    @Test
+    void anonymousIsRedirectedToLoginFromAdminPage() throws Exception {
+        mvc.perform(get("/admin"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/login"));
+    }
+
+    @Test
+    void userGetsForbiddenOnAdminPage() throws Exception {
+        mvc.perform(get("/admin").with(user("gamer@example.test").roles("USER")))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void adminSeesUserListWithoutPasswordHashes() throws Exception {
+        String email = createUser(Role.USER);
+        String hash = users.findByEmail(email).orElseThrow().getPasswordHash();
+        mvc.perform(get("/admin").with(user("admin@example.test").roles("ADMIN")))
+                .andExpect(status().isOk())
+                .andExpect(view().name("admin"))
+                .andExpect(content().string(containsString(email)))
+                .andExpect(content().string(not(containsString(hash))));
+    }
+
+    // --- 2.3 Capa 2: @PreAuthorize en el servicio, sin pasar por ninguna URL ---
+
+    @Test
+    @WithMockUser(roles = "USER")
+    void serviceRejectsUserEvenWithoutUrlRule() {
+        assertThatThrownBy(() -> userService.listUsers()).isInstanceOf(AccessDeniedException.class);
+    }
+
+    @Test
+    void serviceRejectsCallsWithoutAuthentication() {
+        assertThatThrownBy(() -> userService.listUsers())
+                .isInstanceOf(AuthenticationCredentialsNotFoundException.class);
+    }
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    void serviceListsUsersForAdmin() {
+        String email = createUser(Role.USER);
+        assertThat(userService.listUsers()).extracting(UserSummary::email).contains(email);
     }
 }
