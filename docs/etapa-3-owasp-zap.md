@@ -118,6 +118,37 @@ La lista definitiva sale de la Fase 0. Hallazgos esperados:
 Cada corrección se documenta con: alerta o hallazgo, explicación, cambio
 realizado (archivo y línea) y evidencia (test o nuevo escaneo).
 
+### Registro de correcciones
+
+#### H01 — Cabecera Content-Security-Policy (ZAP 10038, A05)
+
+- **Estado:** corregido en código; pendiente de despliegue y escaneo final.
+- **Explicación:** sin CSP el navegador no tiene una segunda defensa si se
+  cuela un XSS. Todos los recursos (CSS, SVG de eventos y avatares) se sirven
+  desde el propio origen y no hay scripts ni estilos en línea, por lo que la
+  política puede ser estricta y sin `'unsafe-inline'`.
+- **Política:** `default-src 'self'; object-src 'none'; base-uri 'self';
+  form-action 'self'; frame-ancestors 'none'`.
+- **Cambio:** `SecurityConfig.java`, constante `CONTENT_SECURITY_POLICY` y
+  `.headers(h -> h.contentSecurityPolicy(...))` en la cadena web. La cadena
+  `/api/**` no cambia porque responde JSON.
+- **Commit:** `085aa33` en la rama `fix/csp-header`.
+- **Test:** `HomeIntegrationTests.htmlPagesSendStrictContentSecurityPolicy`
+  sobre `/recetas`, `/login`, `/registro` y `/eventos`. Antes del cambio
+  falló en las 4 páginas (sin cabecera); después pasa. Suite completa:
+  118 tests, 0 fallas (11 omitidos de MySQL por Docker apagado).
+- **Revisión en navegador (local, 08-11-2026):** Firefox headless con
+  `docker compose` recorrió inicio, búsqueda (con filtros), registro, login,
+  perfil (ver y guardar), los 6 detalles de evento, `/admin` como USER (403)
+  y como ADMIN (200), un 404 y logout. 0 violaciones de CSP, CSS cargado en
+  todas las páginas e imágenes completas (3/3 avatares, 1/1 por detalle). Los
+  formularios funcionan con `form-action 'self'`.
+- **Prueba de control:** al inyectar en `/recetas` un `<script>` en línea y una
+  imagen de `https://example.com`, el script no se ejecutó y el navegador
+  reportó `script-src-elem` e `img-src` bloqueados.
+- **Falta como evidencia:** `curl -sI http://20.80.36.171/login` con la
+  cabecera tras redesplegar, y reporte del escaneo final sin la alerta 10038.
+
 ## Fase 4 — Escaneo final con ZAP
 
 1. Redesplegar la VM `http://20.80.36.171` con los cambios y repetir

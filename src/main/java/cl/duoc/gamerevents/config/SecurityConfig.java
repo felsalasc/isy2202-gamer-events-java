@@ -25,6 +25,16 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SecurityConfig {
 
         /**
+         * CSP de las páginas web. {@code default-src 'self'} bloquea scripts en línea y
+         * de otros
+         * orígenes; {@code object-src 'none'} bloquea plugins; {@code base-uri} y
+         * {@code form-action} impiden redirigir enlaces o formularios a otro dominio;
+         * {@code frame-ancestors 'none'} evita el clickjacking.
+         */
+        static final String CONTENT_SECURITY_POLICY = "default-src 'self'; object-src 'none'; base-uri 'self'; "
+                        + "form-action 'self'; frame-ancestors 'none'";
+
+        /**
          * Cadena de la API: solo atiende {@code /api/**}. Sin sesión ni CSRF, porque el
          * cliente se
          * autentica en cada petición con {@code Authorization: Bearer}. Sin token
@@ -50,10 +60,14 @@ public class SecurityConfig {
                                 .logout(AbstractHttpConfigurer::disable)
                                 .requestCache(AbstractHttpConfigurer::disable)
                                 .exceptionHandling(exceptions -> exceptions
-                                                .authenticationEntryPoint((request, response, exception) -> JWTAuthorizationFilter
-                                                                .writeUnauthorized(response, "Se requiere un token Bearer."))
-                                                .accessDeniedHandler((request, response, exception) -> JWTAuthorizationFilter
-                                                                .writeForbidden(response, "No tienes permiso para este recurso.")))
+                                                .authenticationEntryPoint(
+                                                                (request, response, exception) -> JWTAuthorizationFilter
+                                                                                .writeUnauthorized(response,
+                                                                                                "Se requiere un token Bearer."))
+                                                .accessDeniedHandler(
+                                                                (request, response, exception) -> JWTAuthorizationFilter
+                                                                                .writeForbidden(response,
+                                                                                                "No tienes permiso para este recurso.")))
                                 .addFilterBefore(jwtAuthorizationFilter, UsernamePasswordAuthenticationFilter.class);
                 return http.build();
         }
@@ -78,7 +92,9 @@ public class SecurityConfig {
                                 .formLogin(form -> form.loginPage("/login").usernameParameter("email")
                                                 .defaultSuccessUrl("/perfil", true).failureUrl("/login?error")
                                                 .permitAll())
-                                .logout(logout -> logout.logoutUrl("/logout").logoutSuccessUrl("/login?logout"));
+                                .logout(logout -> logout.logoutUrl("/logout").logoutSuccessUrl("/login?logout"))
+                                .headers(headers -> headers.contentSecurityPolicy(csp -> csp
+                                                .policyDirectives(CONTENT_SECURITY_POLICY)));
                 return http.build();
         }
 
