@@ -146,8 +146,24 @@ realizado (archivo y línea) y evidencia (test o nuevo escaneo).
 - **Prueba de control:** al inyectar en `/recetas` un `<script>` en línea y una
   imagen de `https://example.com`, el script no se ejecutó y el navegador
   reportó `script-src-elem` e `img-src` bloqueados.
-- **Falta como evidencia:** `curl -sI http://20.80.36.171/login` con la
-  cabecera tras redesplegar, y reporte del escaneo final sin la alerta 10038.
+- **Despliegue (VM, 08-11-2026 01:34):** `git pull` de `master` (`2d7dbc6`,
+  PR #10). La app no arrancaba: `Schema validation: missing column [role] in
+  table [gamer_users]`, porque el volumen MySQL era anterior a las Fases 1 y 2.
+  Se recreó una vez (`docker compose down -v` + `up -d --build`) y MySQL
+  cargó `db/01-schema.sql` y `db/02-data.sql` (6 eventos, 4 usuarios).
+  `curl -sI http://20.80.36.171/login` devuelve
+  `Content-Security-Policy: default-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'`.
+  Controles sin credenciales: `/admin`, `/perfil` y `/eventos/1` → 302 a
+  `/login`; `/api/admin/users` y `/api/events/1` → 401; JWT falso → 401.
+- **Escaneo anónimo posterior (Sebastián, 08-11-2026 02:11):** Escaneo
+  automatizado sobre `http://20.80.36.171`, sesión nueva, sin iniciar sesión.
+  18 endpoints. Alertas: Atributo controlable (10031, 10 ocurrencias),
+  Petición de autenticación (2) y Gestión de sesión (3), todas informativas.
+  **La alerta 10038 ya no aparece** (antes, 05-11: CSP + las mismas 3
+  informativas). "Sitio solo HTTP" (10106) no aparece ni antes ni después con
+  esta política; H02 se sustenta en el escaneo del compañero.
+- **Falta:** repetición del escaneo anónimo del compañero y del escaneo
+  autenticado.
 
 ## Fase 4 — Escaneo final con ZAP
 
