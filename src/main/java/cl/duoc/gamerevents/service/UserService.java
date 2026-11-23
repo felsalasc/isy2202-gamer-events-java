@@ -4,6 +4,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.UUID;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -24,7 +25,9 @@ public class UserService {
     public UserService(GamerUserRepository users, PasswordEncoder encoder) {
         this.users = users;
         this.encoder = encoder;
-        this.dummyHash = encoder.encode("hash-de-relleno-para-tiempo-constante");
+        // Hash de relleno para que un correo inexistente también ejecute BCrypt (tiempo constante,
+        // evita enumerar usuarios). Se genera desde un valor aleatorio: no es una credencial.
+        this.dummyHash = encoder.encode(UUID.randomUUID().toString());
     }
 
     /**
