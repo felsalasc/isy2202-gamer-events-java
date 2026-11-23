@@ -4,7 +4,7 @@
 <body><header th:replace="~{fragments :: header}"></header>
 <main id="contenido" class="container page-main">
     <p class="eyebrow">Encuentra tu próxima partida</p><h1 class="page-title">Explorar eventos</h1>
-    <form th:action="@{/eventos}" method="get" class="panel filters" aria-label="Filtrar eventos">
+    <form th:action="@{/eventos/buscar}" method="get" class="panel filters" aria-label="Filtrar eventos">
         <div><label for="name">Nombre</label><input id="name" name="name" type="search" maxlength="140" placeholder="Ej: Nexus" th:value="${filter.name}"></div>
         <div><label for="game">Videojuego</label><select id="game" name="game"><option value="">Todos los videojuegos</option><option th:each="option : ${games}" th:value="${option}" th:text="${option}" th:selected="${filter.game == option}"></option></select></div>
         <div><label for="category">Tipo o categoría</label><select id="category" name="category"><option value="">Todas las categorías</option><option th:each="option : ${categories}" th:value="${option}" th:text="${option}" th:selected="${filter.category == option}"></option></select></div>
@@ -14,7 +14,7 @@
         <div><label for="date">Fecha</label><input id="date" name="date" type="date" th:value="${filter.date}" min="1900-01-01" max="2100-12-31"></div>
         <button class="button" type="submit">Buscar</button>
     </form>
-    <div class="filter-actions"><p class="muted" th:text="|${#lists.size(events)} eventos encontrados|"></p><a class="text-link" th:href="@{/eventos}">Limpiar filtros</a></div>
+    <div class="filter-actions"><p class="muted" th:text="|${#lists.size(events)} eventos encontrados|"></p><a class="text-link" th:href="@{/eventos/buscar}">Limpiar filtros</a></div>
     <div class="empty-state" th:if="${#lists.isEmpty(events)}"><h2>No hay eventos que coincidan</h2><p>Prueba con otro nombre, videojuego, lugar, fecha o modalidad.</p></div>
     <div class="event-grid"><th:block th:each="event : ${events}"><article th:replace="~{fragments :: eventCard(${event})}"></article></th:block></div>
 </main><footer th:replace="~{fragments :: footer}"></footer></body></html>

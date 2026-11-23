@@ -10,11 +10,13 @@
 <header th:fragment="header" class="site-header">
     <a class="skip-link" href="#contenido">Saltar al contenido</a>
     <div class="container header-content">
-        <a class="brand" th:href="@{/recetas}">Gamer Events<span class="brand-dot">●</span></a>
+        <a class="brand" th:href="@{/eventos}">Gamer Events<span class="brand-dot">●</span></a>
         <nav aria-label="Navegación principal">
-            <a th:href="@{/recetas}">Inicio</a>
-            <a th:href="@{/eventos}">Eventos</a>
+            <a th:href="@{/eventos}">Inicio</a>
+            <a th:href="@{/eventos/buscar}">Eventos</a>
             <a th:if="${signedIn}" th:href="@{/perfil}">Mi perfil</a>
+            <a th:if="${signedIn}" th:href="@{/comunidad}">Comunidad</a>
+            <a th:if="${signedIn}" th:href="@{/eventos/nuevo}">Publicar evento</a>
             <a th:if="${isAdmin}" th:href="@{/admin}">Administración</a>
             <a th:unless="${signedIn}" th:href="@{/login}">Ingresar</a>
             <a class="nav-register" th:unless="${signedIn}" th:href="@{/registro}">Crear cuenta</a>

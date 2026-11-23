@@ -39,6 +39,7 @@ services:
       DB_NAME: ${DB_NAME:-gamer_events}
       DB_USERNAME: ${DB_USERNAME:-gamer_events}
       DB_PASSWORD: ${DB_PASSWORD}
+      PUBLIC_BASE_URL: ${PUBLIC_BASE_URL:-http://localhost}
 
 volumes:
   mysql-data:

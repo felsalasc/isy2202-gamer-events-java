@@ -55,7 +55,7 @@ class EventJourneysTests {
 
     @Test
     void authenticatedUserCanBrowseEmptyCatalog() throws Exception {
-        mvc.perform(get("/eventos").with(user("gamer@example.test"))).andExpect(status().isOk())
+        mvc.perform(get("/eventos/buscar").with(user("gamer@example.test"))).andExpect(status().isOk())
                 .andExpect(content().string(containsString("No hay eventos que coincidan")));
     }
 
@@ -66,7 +66,7 @@ class EventJourneysTests {
         event("Otra ciudad", "Esports", "Valparaíso", date, false);
         event("Otra fecha", "Esports", "Santiago", date.plusDays(1), false);
         event("Otra categoría", "Comunidad", "Santiago", date, false);
-        mvc.perform(get("/eventos").with(user("gamer@example.test"))
+        mvc.perform(get("/eventos/buscar").with(user("gamer@example.test"))
                 .param("category", "Esports").param("city", "Santiago").param("date", date.toString()))
                 .andExpect(status().isOk()).andExpect(content().string(containsString("Torneo seleccionado")))
                 .andExpect(content().string(not(containsString("Otra ciudad"))))
@@ -96,7 +96,7 @@ class EventJourneysTests {
 
     @Test
     void invalidDateAndMissingEventReturnClientErrors() throws Exception {
-        mvc.perform(get("/eventos").with(user("gamer@example.test")).param("date", "2026-99-99"))
+        mvc.perform(get("/eventos/buscar").with(user("gamer@example.test")).param("date", "2026-99-99"))
                 .andExpect(status().isBadRequest());
         mvc.perform(get("/eventos/99999999").with(user("gamer@example.test"))).andExpect(status().isNotFound());
     }

@@ -81,16 +81,15 @@ public class SecurityConfig {
         SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
                 http.authorizeHttpRequests(authorize -> authorize
                                 .dispatcherTypeMatchers(DispatcherType.ERROR).permitAll()
-                                // "/eventos" es la búsqueda pública; "/eventos/{id}" (detalle) no calza y queda
-                                // privado.
-                                .requestMatchers(HttpMethod.GET, "/", "/home", "/recetas", "/eventos", "/login",
+                                // Inicio y búsqueda públicos; los detalles y las funciones de comunidad son privados.
+                                .requestMatchers(HttpMethod.GET, "/", "/home", "/recetas", "/eventos", "/eventos/buscar", "/login",
                                                 "/registro", "/css/**", "/images/**")
                                 .permitAll()
                                 .requestMatchers(HttpMethod.POST, "/registro").permitAll()
                                 .requestMatchers("/admin/**").hasRole("ADMIN")
                                 .anyRequest().authenticated())
                                 .formLogin(form -> form.loginPage("/login").usernameParameter("email")
-                                                .defaultSuccessUrl("/perfil", true).failureUrl("/login?error")
+                                                .defaultSuccessUrl("/perfil", false).failureUrl("/login?error")
                                                 .permitAll())
                                 .logout(logout -> logout.logoutUrl("/logout").logoutSuccessUrl("/login?logout"))
                                 .headers(headers -> headers.contentSecurityPolicy(csp -> csp

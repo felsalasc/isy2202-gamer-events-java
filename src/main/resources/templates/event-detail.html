@@ -3,7 +3,7 @@
 <head th:replace="~{fragments :: head(${event.title})}"></head>
 <body><header th:replace="~{fragments :: header}"></header>
 <main id="contenido" class="container page-main">
-    <a class="text-link" th:href="@{/eventos}">← Volver a eventos</a>
+    <a class="text-link" th:href="@{/eventos/buscar}">← Volver a eventos</a>
     <p class="eyebrow" th:text="|${event.category} · ${event.modality.label}|"></p><h1 class="page-title" th:text="${event.title}"></h1>
     <img class="event-hero" th:src="@{${event.imageUrl}}" th:alt="|Imagen del evento ${event.title}|" width="320" height="180">
     <div class="event-detail">
@@ -31,4 +31,59 @@
             </th:block>
         </dl></aside>
     </div>
+    <section id="multimedia" class="panel" aria-labelledby="multimedia-titulo">
+        <h2 id="multimedia-titulo">Fotos y videos del evento</h2>
+        <p role="status" th:if="${mediaMessage}" th:text="${mediaMessage}"></p>
+        <p role="alert" th:if="${mediaError}" th:text="${mediaError}"></p>
+        <div class="event-grid">
+            <figure th:each="item : ${media}">
+                <video th:if="${item.contentType == 'video/mp4'}" controls preload="metadata" th:src="@{/eventos/{id}/multimedia/{mediaId}(id=${event.id},mediaId=${item.id})}">Tu navegador no permite reproducir este video.</video>
+                <img th:unless="${item.contentType == 'video/mp4'}" loading="lazy" th:src="@{/eventos/{id}/multimedia/{mediaId}(id=${event.id},mediaId=${item.id})}" th:alt="|Foto del evento ${event.title}|">
+            </figure>
+        </div>
+        <p th:if="${#lists.isEmpty(media)}">Aún no hay archivos adicionales.</p>
+        <form th:if="${ownsEvent}" th:action="@{/eventos/{id}/multimedia(id=${event.id})}" method="post" enctype="multipart/form-data">
+            <label for="media-file">Agregar foto o video</label>
+            <p id="media-help">PNG o JPEG hasta 5 MB; MP4 hasta 20 MB. Máximo 20 archivos.</p>
+            <input id="media-file" type="file" name="file" accept="image/png,image/jpeg,video/mp4" aria-describedby="media-help" required>
+            <button class="button" type="submit">Agregar archivo</button>
+        </form>
+    </section>
+    <section th:if="${ownsEvent}" class="panel" aria-labelledby="compartir-titulo">
+        <h2 id="compartir-titulo">Comparte tu evento</h2>
+        <form th:action="@{/eventos/{id}/compartir(id=${event.id})}" method="post"><button class="button" type="submit">Compartir en la comunidad</button></form>
+        <p>Quienes reciban el enlace deben iniciar sesión para ver el detalle.</p>
+        <label for="share-url">Enlace del evento</label><input id="share-url" readonly th:value="${shareUrl}">
+        <a class="text-link" th:href="|https://wa.me/?text=${encodedShareUrl}|" target="_blank" rel="noopener noreferrer">Compartir en WhatsApp</a>
+        <a class="text-link" th:href="|https://www.facebook.com/sharer/sharer.php?u=${encodedShareUrl}|" target="_blank" rel="noopener noreferrer">Compartir en Facebook</a>
+        <a class="text-link" th:href="|https://twitter.com/intent/tweet?url=${encodedShareUrl}|" target="_blank" rel="noopener noreferrer">Compartir en X</a>
+    </section>
+    <section id="valoraciones" class="panel" aria-labelledby="valoraciones-titulo">
+        <h2 id="valoraciones-titulo">Valoraciones</h2>
+        <p th:if="${ratings.count == 0}">Este evento aún no tiene valoraciones.</p>
+        <p th:if="${ratings.count > 0}" th:text="|${#numbers.formatDecimal(ratings.average,1,1)} de 5 · ${ratings.count} valoraciones|"></p>
+        <form th:action="@{/eventos/{id}/valoracion(id=${event.id})}" th:object="${ratingForm}" method="post">
+            <label for="score">Tu puntuación</label>
+            <select id="score" th:field="*{score}" required><option value="">Selecciona</option><option th:each="n : ${#numbers.sequence(1,5)}" th:value="${n}" th:text="|${n} de 5|"></option></select>
+            <p class="field-error" th:if="${#fields.hasErrors('score')}" th:errors="*{score}"></p>
+            <button class="button" type="submit">Guardar valoración</button>
+        </form>
+    </section>
+    <section id="comentarios" class="panel" aria-labelledby="comentarios-titulo">
+        <h2 id="comentarios-titulo">Comentarios</h2>
+        <form th:action="@{/eventos/{id}/comentarios(id=${event.id})}" th:object="${commentForm}" method="post">
+            <label for="comment-text">Tu comentario</label><textarea id="comment-text" th:field="*{text}" maxlength="1000" rows="3" required></textarea>
+            <p class="field-error" th:if="${#fields.hasErrors('text')}" th:errors="*{text}"></p>
+            <button class="button" type="submit">Publicar comentario</button>
+        </form>
+        <p th:if="${comments.total == 0}">Sé la primera persona en comentar.</p>
+        <article th:each="comment : ${comments.items}">
+            <h3 th:text="${comment.author}"></h3><time th:text="${#temporals.format(comment.createdAt,'dd/MM/yyyy HH:mm')}"></time>
+            <p th:text="${comment.text}"></p>
+        </article>
+        <nav aria-label="Páginas de comentarios">
+            <a class="text-link" th:if="${comments.page > 0}" th:href="@{/eventos/{id}(id=${event.id},page=${comments.page - 1})} + '#comentarios'">Anteriores</a>
+            <a class="text-link" th:if="${comments.hasNext}" th:href="@{/eventos/{id}(id=${event.id},page=${comments.page + 1})} + '#comentarios'">Siguientes</a>
+        </nav>
+    </section>
 </main><footer th:replace="~{fragments :: footer}"></footer></body></html>
