@@ -15,8 +15,12 @@
 -- ATENCIÓN: borra las tablas si ya existen, para que el script sea repetible.
 -- =============================================================================
 
-DROP TABLE IF EXISTS gamer_users;
+DROP TABLE IF EXISTS event_comments;
+DROP TABLE IF EXISTS event_ratings;
+DROP TABLE IF EXISTS event_media;
+DROP TABLE IF EXISTS event_shares;
 DROP TABLE IF EXISTS gamer_events;
+DROP TABLE IF EXISTS gamer_users;
 DROP TABLE IF EXISTS brand_ads;
 
 -- Usuarios. La contraseña se guarda solo como hash BCrypt.
@@ -39,6 +43,7 @@ CREATE TABLE gamer_users (
 -- uno online tiene access_url (https).
 CREATE TABLE gamer_events (
     id                 BIGINT        NOT NULL AUTO_INCREMENT,
+    owner_id           BIGINT,
     title              VARCHAR(140)  NOT NULL,
     category           VARCHAR(60)   NOT NULL,
     game               VARCHAR(80)   NOT NULL,
@@ -56,7 +61,8 @@ CREATE TABLE gamer_events (
     registration_info  VARCHAR(1000) NOT NULL,
     image_url          VARCHAR(200)  NOT NULL,
     featured           BIT           NOT NULL,
-    PRIMARY KEY (id)
+    PRIMARY KEY (id),
+    CONSTRAINT fk_event_owner FOREIGN KEY (owner_id) REFERENCES gamer_users(id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- Banners de marcas (ficticias) que se muestran en el inicio.

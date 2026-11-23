@@ -10,7 +10,7 @@ public class HomeController {
     private final EventService events;
     public HomeController(EventService events) { this.events = events; }
 
-    @GetMapping({"/", "/home", "/recetas"})
+    @GetMapping({"/", "/home", "/recetas", "/eventos"})
     public String home(Model model) {
         model.addAttribute("siteName", "Gamer Events");
         model.addAttribute("upcoming", events.upcoming());

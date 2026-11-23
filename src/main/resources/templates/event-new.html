@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head('Publicar evento')}"></head>
+<body><header th:replace="~{fragments :: header}"></header>
+<main id="contenido" class="container page-main">
+    <h1 class="page-title">Publicar un evento</h1>
+    <form class="panel" th:action="@{/eventos/nuevo}" th:object="${eventForm}" method="post">
+        <div role="alert" th:if="${#fields.hasAnyErrors()}"><p>Revisa los datos del evento.</p><ul><li th:each="error : ${#fields.allErrors()}" th:text="${error}"></li></ul></div>
+        <label for="title">Título</label><input id="title" th:field="*{title}" maxlength="140" required>
+        <label for="game">Videojuego</label><input id="game" th:field="*{game}" maxlength="80" required>
+        <label for="category">Categoría</label><input id="category" th:field="*{category}" maxlength="60" required>
+        <label for="country">País organizador</label><input id="country" th:field="*{country}" maxlength="60" required>
+        <label for="modality">Modalidad</label><select id="modality" th:field="*{modality}"><option value="PRESENCIAL">Presencial</option><option value="ONLINE">Online</option></select>
+        <p>Para eventos presenciales completa ciudad y dirección. Para eventos online completa el enlace HTTPS.</p>
+        <label for="city">Ciudad</label><input id="city" th:field="*{city}" maxlength="100">
+        <label for="address">Dirección</label><input id="address" th:field="*{address}" maxlength="200">
+        <label for="accessUrl">Enlace de acceso online</label><input id="accessUrl" th:field="*{accessUrl}" type="url" maxlength="300" placeholder="https://">
+        <label for="startsAt">Fecha y hora local de Chile</label><input id="startsAt" th:field="*{startsAt}" type="datetime-local" required>
+        <label for="description">Descripción</label><textarea id="description" th:field="*{description}" rows="5" maxlength="4000" required></textarea>
+        <button class="button" type="submit">Publicar evento</button>
+    </form>
+</main><footer th:replace="~{fragments :: footer}"></footer></body></html>

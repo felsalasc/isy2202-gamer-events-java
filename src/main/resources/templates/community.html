@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head('Comunidad')}"></head>
+<body><header th:replace="~{fragments :: header}"></header>
+<main id="contenido" class="container page-main">
+    <p class="eyebrow">Nos encontramos jugando</p><h1 class="page-title">Eventos de la comunidad</h1>
+    <p><a class="button" th:href="@{/eventos/nuevo}">Publicar un evento</a></p>
+    <p th:if="${#lists.isEmpty(community.items)}">Aún no hay eventos compartidos.</p>
+    <div class="event-grid"><article class="panel" th:each="share : ${community.items}">
+        <h2><a th:href="@{/eventos/{id}(id=${share.eventId})}" th:text="${share.title}"></a></h2>
+        <p th:text="|Compartido por ${share.author}|"></p>
+        <time th:text="${#temporals.format(share.createdAt,'dd/MM/yyyy HH:mm')}"></time>
+    </article></div>
+    <nav aria-label="Páginas de comunidad">
+        <a th:if="${community.page > 0}" th:href="@{/comunidad(page=${community.page - 1})}">Anteriores</a>
+        <a th:if="${community.hasNext}" th:href="@{/comunidad(page=${community.page + 1})}">Siguientes</a>
+    </nav>
+</main><footer th:replace="~{fragments :: footer}"></footer></body></html>

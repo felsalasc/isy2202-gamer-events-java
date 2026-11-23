@@ -250,3 +250,10 @@ artefactos de compilación.
 
 Las rutas públicas y privadas y el uso del token están en el
 [README](../README.md#rutas-públicas-y-privadas).
+# Actualización de desarrollo de semana 5
+
+Antes de actualizar una instalación existente, aplica el procedimiento de
+[migración sin pérdida de datos](semana-5-desarrollo.md#actualizar-una-instalación-existente-sin-perder-datos).
+La nueva versión valida tablas adicionales; ejecutar solo `docker compose up`
+con un volumen de la etapa anterior no es suficiente. Configura también
+`PUBLIC_BASE_URL` con el origen público para los enlaces compartidos.

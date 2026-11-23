@@ -169,3 +169,7 @@ h2 { font-weight: 800; }
 .data-table th { color: var(--muted); font-size: .85rem; text-transform: uppercase; letter-spacing: .04em; }
 .role-badge { display: inline-block; padding: .1rem .55rem; border: 1px solid var(--border); border-radius: 999px; font-size: .8rem; }
 .role-badge.role-admin { border-color: var(--amber); color: var(--amber); }
+/* Contenido multimedia aportado por la comunidad. */
+video, figure img { max-width: 100%; height: auto; border-radius: 12px; }
+textarea { width: 100%; box-sizing: border-box; font: inherit; }
+.page-main > .panel { margin-top: 1.5rem; }

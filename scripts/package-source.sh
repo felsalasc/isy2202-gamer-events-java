@@ -6,7 +6,7 @@ ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT_DIR"
 
 DIST_DIR="$ROOT_DIR/dist"
-ZIP_FILE="$DIST_DIR/gamer-events-etapa2-fuente.zip"
+ZIP_FILE="$DIST_DIR/gamer-events-semana5-fuente.zip"
 
 mkdir -p "$DIST_DIR"
 rm -f "$ZIP_FILE"
@@ -29,6 +29,7 @@ ITEMS=(
     "docs"
     ".mvn"
     "scripts"
+    "db"
 )
 
 # Empaquetar excluyendo archivos ocultos del sistema como .DS_Store

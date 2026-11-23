@@ -51,7 +51,7 @@ class EventSearchTests {
 
     /** Búsqueda anónima: sin {@code .with(user(...))}. */
     private ResultActions search(String... params) throws Exception {
-        var request = get("/eventos");
+        var request = get("/eventos/buscar");
         for (int index = 0; index < params.length; index += 2) {
             request.param(params[index], params[index + 1]);
         }
@@ -139,12 +139,12 @@ class EventSearchTests {
 
     @Test
     void unknownModalityIsBadRequest() throws Exception {
-        mvc.perform(get("/eventos").param("modality", "HOLOGRAMA")).andExpect(status().isBadRequest());
+        mvc.perform(get("/eventos/buscar").param("modality", "HOLOGRAMA")).andExpect(status().isBadRequest());
     }
 
     @Test
     void tooLongTextFilterIsBadRequest() throws Exception {
-        mvc.perform(get("/eventos").param("name", "x".repeat(141))).andExpect(status().isBadRequest());
+        mvc.perform(get("/eventos/buscar").param("name", "x".repeat(141))).andExpect(status().isBadRequest());
     }
 
     @Test

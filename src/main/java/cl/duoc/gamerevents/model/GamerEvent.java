@@ -15,6 +15,9 @@ public class GamerEvent {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "owner_id")
+    private GamerUser owner;
     @Column(nullable = false, length = 140)
     private String title;
     @Column(nullable = false, length = 60)
@@ -118,6 +121,12 @@ public class GamerEvent {
 
     public Long getId() {
         return id;
+    }
+
+    public GamerUser getOwner() { return owner; }
+    public void assignOwner(GamerUser owner) {
+        if (this.owner != null || owner == null) throw new IllegalStateException("El propietario ya está asignado.");
+        this.owner = owner;
     }
 
     public String getTitle() {
